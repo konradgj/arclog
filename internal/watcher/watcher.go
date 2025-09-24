@@ -1,9 +1,14 @@
 package watcher
 
 import (
+	"fmt"
+	"io/fs"
 	"log"
+	"os"
+	"path/filepath"
 
 	"github.com/fsnotify/fsnotify"
+	"github.com/konradgj/arclog/internal/appconfig"
 	"github.com/konradgj/arclog/internal/logger"
 )
 
@@ -36,11 +41,30 @@ func Watch() {
 		}
 	}()
 
-	// Add a path.
-	err = watcher.Add("/tmp")
+	cfg, err := appconfig.Unmarshal()
 	if err != nil {
-		log.Fatal(err)
+		logger.Error("Could not umarshal config", "err", err)
 	}
+
+	// Add a path.
+	err = watcher.Add(cfg.LogPath)
+	if err != nil {
+		logger.Error("Could not add path to watcher", "err", err)
+		os.Exit(1)
+	}
+	// Add subdirs recursivly
+	err = filepath.WalkDir(cfg.LogPath, func(path string, d fs.DirEntry, err error) error {
+		if d.IsDir() {
+			watcher.Add(path)
+		}
+		return nil
+	})
+	if err != nil {
+		logger.Error("Could not add path to watcher", "err", err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("Started watching dir: %s\n", cfg.LogPath)
 
 	// Block main goroutine forever.
 	<-make(chan struct{})
