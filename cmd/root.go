@@ -5,12 +5,11 @@ package cmd
 
 import (
 	"fmt"
-	"log/slog"
 	"os"
 	"path/filepath"
 
 	"github.com/konradgj/arclog/cmd/config"
-	"github.com/konradgj/arclog/pkg/helpers"
+	"github.com/konradgj/arclog/internal/logger"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -37,7 +36,9 @@ func Execute() {
 }
 
 func init() {
-	cobra.OnInitialize(initLogger)
+	cobra.OnInitialize(func() {
+		logger.Init(verbose)
+	})
 	cobra.OnInitialize(initConfig)
 
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Enable verbose output")
@@ -46,21 +47,10 @@ func init() {
 	rootCmd.AddCommand(config.ConfigCmd)
 }
 
-func initLogger() {
-	level := slog.LevelInfo
-	if verbose {
-		level = slog.LevelDebug
-	}
-
-	helpers.Logger = slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
-		Level: level,
-	}))
-}
-
 func initConfig() {
 	home, err := os.UserHomeDir()
 	if err != nil {
-		helpers.Logger.Error("Could not get home directory", "err", err)
+		logger.Error("Could not get home directory", "err", err)
 		os.Exit(1)
 	}
 
@@ -85,14 +75,14 @@ func initConfig() {
 
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 			if err = viper.SafeWriteConfig(); err != nil {
-				helpers.Logger.Error("Could not create new config file", "err", err)
+				logger.Error("Could not create new config file", "err", err)
 				os.Exit(1)
 			}
 
 			viper.SetConfigFile(filepath.Join(home, ".arclog.toml"))
-			helpers.Logger.Debug("Created new config file", "path", viper.ConfigFileUsed())
+			logger.Debug("Created new config file", "path", viper.ConfigFileUsed())
 		} else {
-			helpers.Logger.Error("Could not read config", "err", err)
+			logger.Error("Could not read config", "err", err)
 			os.Exit(1)
 		}
 	}

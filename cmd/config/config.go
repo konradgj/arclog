@@ -19,4 +19,5 @@ var ConfigCmd = &cobra.Command{
 
 func init() {
 	ConfigCmd.AddCommand(setCmd)
+	ConfigCmd.AddCommand(showCmd)
 }

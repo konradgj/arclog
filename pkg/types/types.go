@@ -1,8 +1,4 @@
-package helpers
-
-import "log/slog"
-
-var Logger *slog.Logger
+package types
 
 type Config struct {
 	LogPath   string `toml:"logpath"`

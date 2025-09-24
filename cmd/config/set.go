@@ -4,7 +4,7 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 package config
 
 import (
-	"github.com/konradgj/arclog/pkg/helpers"
+	"github.com/konradgj/arclog/internal/logger"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -40,6 +40,6 @@ func setValues() {
 
 	err := viper.WriteConfig()
 	if err != nil {
-		helpers.Logger.Error("could not write config", "error", err)
+		logger.Error("could not write config", "error", err)
 	}
 }
