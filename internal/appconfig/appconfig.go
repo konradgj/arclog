@@ -9,6 +9,8 @@ import (
 	"github.com/spf13/viper"
 )
 
+const appDir = "arclog"
+
 type AppConfig struct {
 	LogPath   string `toml:"logpath"`
 	UserToken string `toml:"usertoken"`
@@ -21,14 +23,14 @@ func InitConfig() {
 		os.Exit(1)
 	}
 
-	appDir := filepath.Join(configDir, "arclog")
+	appDirAbs := filepath.Join(configDir, appDir)
 	if err := os.MkdirAll(appDir, 0o755); err != nil {
 		logger.Error("Could not create config dir", "err", err)
 		os.Exit(1)
 	}
 
-	configFile := filepath.Join(appDir, "config.toml")
-	viper.AddConfigPath(appDir)
+	configFile := filepath.Join(appDirAbs, "config.toml")
+	viper.AddConfigPath(appDirAbs)
 	viper.SetConfigType("toml")
 	viper.SetConfigName("config")
 
