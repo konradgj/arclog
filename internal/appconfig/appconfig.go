@@ -9,6 +9,11 @@ import (
 	"github.com/spf13/viper"
 )
 
+type AppConfig struct {
+	LogPath   string `toml:"logpath"`
+	UserToken string `toml:"usertoken"`
+}
+
 func InitConfig() {
 	configDir, err := os.UserConfigDir()
 	if err != nil {
@@ -56,4 +61,36 @@ func InitConfig() {
 	}
 
 	fmt.Println("Using config file:", viper.ConfigFileUsed())
+}
+
+func Unmarshal() (*AppConfig, error) {
+	var cfg AppConfig
+
+	if err := viper.Unmarshal(&cfg); err != nil {
+		return &cfg, err
+	}
+
+	return &cfg, nil
+}
+
+func printSettings(m map[string]any, indent int) {
+	prefix := ""
+	for range indent {
+		prefix += "  " // two spaces per level
+	}
+
+	for k, v := range m {
+		switch val := v.(type) {
+		case map[string]any: // nested table
+			fmt.Printf("%s- %s:\n", prefix, k)
+			printSettings(val, indent+1)
+		default:
+			fmt.Printf("%s- %s = %v\n", prefix, k, val)
+		}
+	}
+}
+
+func Show() {
+	settings := viper.AllSettings()
+	printSettings(settings, 0)
 }

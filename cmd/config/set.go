@@ -4,6 +4,9 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 package config
 
 import (
+	"fmt"
+
+	"github.com/konradgj/arclog/internal/appconfig"
 	"github.com/konradgj/arclog/internal/logger"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -42,4 +45,7 @@ func setValues() {
 	if err != nil {
 		logger.Error("could not write config", "error", err)
 	}
+
+	fmt.Println("Updated config:")
+	appconfig.Show()
 }
