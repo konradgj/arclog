@@ -2,6 +2,7 @@ package logger
 
 import (
 	"io"
+	"log"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -43,7 +44,10 @@ func getAppLogPath() string {
 		panic(err)
 	}
 	appDirAbs := filepath.Join(configDir, appDir)
-	os.MkdirAll(appDirAbs, 0o755)
+	if err := os.MkdirAll(appDirAbs, 0o755); err != nil {
+		log.Fatalf("Could not create config dir: %v", err)
+		os.Exit(1)
+	}
 
 	return filepath.Join(appDirAbs, "arclog.log")
 }

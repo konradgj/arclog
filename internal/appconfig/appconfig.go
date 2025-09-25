@@ -5,11 +5,10 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/konradgj/arclog/internal/helpers"
 	"github.com/konradgj/arclog/internal/logger"
 	"github.com/spf13/viper"
 )
-
-const appDir = "arclog"
 
 type AppConfig struct {
 	LogPath   string `toml:"logpath"`
@@ -17,20 +16,10 @@ type AppConfig struct {
 }
 
 func InitConfig() {
-	configDir, err := os.UserConfigDir()
-	if err != nil {
-		logger.Error("Could not get user config dir", "err", err)
-		os.Exit(1)
-	}
+	appDir := helpers.GetAppDir()
 
-	appDirAbs := filepath.Join(configDir, appDir)
-	if err := os.MkdirAll(appDir, 0o755); err != nil {
-		logger.Error("Could not create config dir", "err", err)
-		os.Exit(1)
-	}
-
-	configFile := filepath.Join(appDirAbs, "config.toml")
-	viper.AddConfigPath(appDirAbs)
+	configFile := filepath.Join(appDir, "config.toml")
+	viper.AddConfigPath(appDir)
 	viper.SetConfigType("toml")
 	viper.SetConfigName("config")
 
@@ -75,6 +64,11 @@ func Unmarshal() (*AppConfig, error) {
 	return &cfg, nil
 }
 
+func Show() {
+	settings := viper.AllSettings()
+	printSettings(settings, 0)
+}
+
 func printSettings(m map[string]any, indent int) {
 	prefix := ""
 	for range indent {
@@ -90,9 +84,4 @@ func printSettings(m map[string]any, indent int) {
 			fmt.Printf("%s- %s = %v\n", prefix, k, val)
 		}
 	}
-}
-
-func Show() {
-	settings := viper.AllSettings()
-	printSettings(settings, 0)
 }
