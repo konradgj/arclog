@@ -3,16 +3,19 @@ package app
 import (
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/konradgj/arclog/internal/db"
+	"github.com/konradgj/arclog/internal/dpsreport"
 	"github.com/konradgj/arclog/internal/logger"
 )
 
 const appDir = "arclog"
 
 type Context struct {
-	St     *db.Store
-	Config *Config
+	St              *db.Store
+	Config          *Config
+	DpsReportClient *dpsreport.Client
 }
 
 func NewContext() *Context {
@@ -27,6 +30,8 @@ func (ctx *Context) Init(verbose bool) {
 
 	ctx.Config = &Config{}
 	ctx.Config.InitConfig()
+
+	ctx.DpsReportClient.NewClient(5 * time.Minute)
 }
 
 func GetAppDir() string {

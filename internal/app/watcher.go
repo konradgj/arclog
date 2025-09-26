@@ -37,6 +37,7 @@ func (ctx *Context) NewWatcher() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer watcher.Close()
 
 	// Start listening for events.
 	go func() {
@@ -73,9 +74,9 @@ func (ctx *Context) NewWatcher() {
 				}
 			case err, ok := <-watcher.Errors:
 				if !ok {
+					logger.Error("Error", "err", err)
 					return
 				}
-				logger.Error("Error", "err", err)
 			}
 		}
 	}()
