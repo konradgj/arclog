@@ -5,16 +5,21 @@ arc-dps log uploader
 - [x] db uploads table
   - [x] columns: id, path, url, status, status_reason, statecode, created_at, updated_at
   - [x] up and down migrations
-- [ ] watcher
+- [x] watcher
   - [x] write to uploads on file
   - [x] workers
   - [x] concurrent workers
-- [ ] usertoken command
-  - [ ] user fav browser to get user token and set in config
 - [ ] http client
   - [ ] handle ratelimit
   - [ ] post to dps.report
-  - [ ] handle post options
+  - [ ] handle post options (add to config.toml?)
+- [ ] upload command
+  - [ ] upload -dir (upload from dir maybe recursive?)
+  - [ ] upload -watch (move watch command here)
+- [ ] analisis commands (list?)
+  - [ ] list uploads per status
+  - [ ] list uploaded with link to follow
+  - [ ] list if log succes or not?
 - [ ] wvw live info
   - [ ] would need to parse evtc file
   - [ ] enemy count?
