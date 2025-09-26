@@ -6,13 +6,13 @@ package cmd
 import (
 	"github.com/konradgj/arclog/cmd/config"
 	"github.com/konradgj/arclog/cmd/watch"
-	"github.com/konradgj/arclog/internal/app"
+	"github.com/konradgj/arclog/internal/arclog"
 	"github.com/spf13/cobra"
 )
 
 func NewRootCmd() *cobra.Command {
 	var verbose bool
-	ctx := app.NewContext()
+	ctx := arclog.NewContext()
 
 	rootCmd := &cobra.Command{
 		Use:   "arclog",

@@ -4,11 +4,11 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 package config
 
 import (
-	"github.com/konradgj/arclog/internal/app"
+	"github.com/konradgj/arclog/internal/arclog"
 	"github.com/spf13/cobra"
 )
 
-func NewConfigCmd(ctx *app.Context) *cobra.Command {
+func NewConfigCmd(ctx *arclog.Context) *cobra.Command {
 	configCmd := &cobra.Command{
 		Use:   "config",
 		Short: "Manage config file",

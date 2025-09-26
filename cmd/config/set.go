@@ -6,11 +6,11 @@ package config
 import (
 	"fmt"
 
-	"github.com/konradgj/arclog/internal/app"
+	"github.com/konradgj/arclog/internal/arclog"
 	"github.com/spf13/cobra"
 )
 
-func NewSetCmd(ctx *app.Context) *cobra.Command {
+func NewSetCmd(ctx *arclog.Context) *cobra.Command {
 	var logPath string
 	var userToken string
 
