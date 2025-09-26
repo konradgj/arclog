@@ -7,6 +7,7 @@ import (
 	"context"
 
 	"github.com/konradgj/arclog/cmd/config"
+	"github.com/konradgj/arclog/cmd/upload"
 	"github.com/konradgj/arclog/cmd/watch"
 	"github.com/konradgj/arclog/internal/arclog"
 	"github.com/spf13/cobra"
@@ -33,6 +34,7 @@ func NewRootCmd(rootCtx context.Context) *cobra.Command {
 	rootCmd.AddCommand(
 		config.NewConfigCmd(ctx),
 		watch.NewWatchCmd(ctx, rootCtx),
+		upload.NewUploadCmd(ctx, rootCtx),
 	)
 
 	return rootCmd

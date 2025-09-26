@@ -14,7 +14,7 @@ import (
 	"github.com/konradgj/arclog/internal/logger"
 )
 
-func RunWatch(ctx *Context, cancelCtx context.Context) {
+func (ctx *Context) RunWatch(cancelCtx context.Context) {
 	err := ctx.NewWatcher(nil, cancelCtx)
 	if err != nil {
 		logger.Error("Could not start watcher", "err", err)

@@ -19,7 +19,7 @@ type UploadContentOptions struct {
 	DetailedWvW bool
 }
 
-func (c *Client) uploadContent(filePath string, opts UploadContentOptions) (*UploadResponse, error) {
+func (c *Client) UploadContent(filePath string, opts UploadContentOptions) (*UploadResponse, error) {
 
 	file, err := os.Open(filePath)
 	if err != nil {

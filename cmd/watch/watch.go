@@ -1,6 +1,3 @@
-/*
-Copyright © 2025 NAME HERE <EMAIL ADDRESS>
-*/
 package watch
 
 import (
@@ -10,7 +7,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// watchCmd represents the watch command
 func NewWatchCmd(ctx *arclog.Context, cancelCtx context.Context) *cobra.Command {
 	return &cobra.Command{
 		Use:   "watch",
@@ -18,11 +14,7 @@ func NewWatchCmd(ctx *arclog.Context, cancelCtx context.Context) *cobra.Command 
 		Long: `Start monitoring for creation of arc-dps logs.
 Will upload the logs to dps.report using current configuration file.`,
 		Run: func(cmd *cobra.Command, args []string) {
-			arclog.RunWatch(ctx, cancelCtx)
+			ctx.RunWatch(cancelCtx)
 		},
 	}
-}
-
-func init() {
-
 }

@@ -18,17 +18,17 @@ type UploadResponse struct {
 }
 
 type Encounter struct {
-	UniqueID        string `json:"uniqueId"`
-	Success         bool   `json:"success"`
-	Duration        int    `json:"duration"`
-	CompDps         int    `json:"compDps"`
-	NumberOfPlayers int    `json:"numberOfPlayers"`
-	NumberOfGroups  int    `json:"numberOfGroups"`
-	BossID          int    `json:"bossId"`
-	Boss            string `json:"boss"`
-	IsCm            bool   `json:"isCm"`
-	Gw2Build        int    `json:"gw2Build"`
-	JSONAvailable   bool   `json:"jsonAvailable"`
+	UniqueID        string  `json:"uniqueId"`
+	Success         bool    `json:"success"`
+	Duration        float64 `json:"duration"`
+	CompDps         int     `json:"compDps"`
+	NumberOfPlayers int     `json:"numberOfPlayers"`
+	NumberOfGroups  int     `json:"numberOfGroups"`
+	BossID          int     `json:"bossId"`
+	Boss            string  `json:"boss"`
+	IsCm            bool    `json:"isCm"`
+	Gw2Build        int     `json:"gw2Build"`
+	JSONAvailable   bool    `json:"jsonAvailable"`
 }
 
 type EvtcMeta struct {

@@ -18,4 +18,5 @@ const (
 	ReasonUploading UploadReason = "uploading"
 	ReasonSuccess   UploadReason = "success"
 	ReasonQueueFull UploadReason = "queue_full"
+	ReasonHttp      UploadReason = "http_error"
 )

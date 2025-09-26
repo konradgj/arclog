@@ -11,11 +11,11 @@ arc-dps log uploader
   - [x] concurrent workers
 - [ ] http client
   - [ ] handle ratelimit
-  - [ ] post to dps.report
-  - [ ] handle post options (add to config.toml?)
+  - [x] post to dps.report
+  - [x] handle post options 
 - [ ] upload command
   - [ ] upload -dir (upload from dir maybe recursive?)
-  - [ ] upload -watch (move watch command here)
+  - [x] upload -watch (move watch command here)
 - [ ] analisis commands (list?)
   - [ ] list uploads per status
   - [ ] list uploaded with link to follow
