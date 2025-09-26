@@ -5,18 +5,21 @@ package cmd
 
 import (
 	"context"
+	"time"
 
 	"github.com/konradgj/arclog/cmd/config"
 	"github.com/konradgj/arclog/cmd/upload"
 	"github.com/konradgj/arclog/cmd/watch"
 	"github.com/konradgj/arclog/internal/arclog"
+	"github.com/konradgj/arclog/internal/db"
+	"github.com/konradgj/arclog/internal/dpsreport"
+	"github.com/konradgj/arclog/internal/logger"
 	"github.com/spf13/cobra"
 )
 
 func NewRootCmd(rootCtx context.Context) *cobra.Command {
-
+	var ctx *arclog.Context
 	var verbose bool
-	ctx := arclog.NewContext()
 
 	rootCmd := &cobra.Command{
 		Use:   "arclog",
@@ -25,11 +28,23 @@ func NewRootCmd(rootCtx context.Context) *cobra.Command {
 		// Uncomment the following line if your bare application
 		// has an action associated with it:
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
-			ctx.Init(verbose)
+			logger.Initlogger(verbose)
+
 		},
 	}
 
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Enable verbose output")
+
+	st := &db.Store{}
+	dbPath := arclog.GetDbPath()
+	st.SetupDb(dbPath, verbose)
+
+	cfg := &arclog.Config{}
+	cfg.InitConfig()
+
+	dpsClient := dpsreport.NewClient(5 * time.Minute)
+	rl := arclog.NewRateLimiter(25, time.Minute)
+	ctx = arclog.NewContext(st, cfg, dpsClient, rl)
 
 	rootCmd.AddCommand(
 		config.NewConfigCmd(ctx),

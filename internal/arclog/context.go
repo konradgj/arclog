@@ -3,7 +3,6 @@ package arclog
 import (
 	"os"
 	"path/filepath"
-	"time"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/konradgj/arclog/internal/db"
@@ -21,22 +20,13 @@ type Context struct {
 	RateLimiter     *RateLimiter
 }
 
-func NewContext() *Context {
-	return &Context{}
-}
-
-func (ctx *Context) Init(verbose bool) {
-	logger.Initlogger(verbose)
-
-	ctx.St = &db.Store{}
-	dbPath := getDbPath()
-	ctx.St.SetupDb(dbPath, verbose)
-
-	ctx.Config = &Config{}
-	ctx.Config.InitConfig()
-
-	ctx.DpsReportClient = dpsreport.NewClient(5 * time.Minute)
-	ctx.RateLimiter = NewRateLimiter(25, time.Minute)
+func NewContext(st *db.Store, cfg *Config, dpsClient *dpsreport.Client, rl *RateLimiter) *Context {
+	return &Context{
+		St:              st,
+		Config:          cfg,
+		DpsReportClient: dpsClient,
+		RateLimiter:     rl,
+	}
 }
 
 func GetAppDir() string {
@@ -55,7 +45,7 @@ func GetAppDir() string {
 	return appDirAbs
 }
 
-func getDbPath() string {
+func GetDbPath() string {
 	appDir := GetAppDir()
 	return filepath.Join(appDir, "arclog.db")
 }
