@@ -21,6 +21,7 @@ type Context struct {
 func NewContext() *Context {
 	return &Context{}
 }
+
 func (ctx *Context) Init(verbose bool) {
 	logger.Initlogger(verbose)
 
@@ -31,6 +32,7 @@ func (ctx *Context) Init(verbose bool) {
 	ctx.Config = &Config{}
 	ctx.Config.InitConfig()
 
+	ctx.DpsReportClient = &dpsreport.Client{}
 	ctx.DpsReportClient.NewClient(5 * time.Minute)
 }
 
