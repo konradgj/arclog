@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"time"
 
@@ -36,7 +37,6 @@ func (ctx *Context) NewWatcher() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer watcher.Close()
 
 	// Start listening for events.
 	go func() {
@@ -46,14 +46,28 @@ func (ctx *Context) NewWatcher() {
 				if !ok {
 					return
 				}
-				if event.Has(fsnotify.Create) && strings.Contains(event.Name, ".zevtc") {
+				if !event.Has(fsnotify.Create) {
+					continue
+				}
+
+				st, err := os.Stat(event.Name)
+				if err != nil {
+					logger.Error("error in filepath", "err", err)
+					continue
+				}
+
+				if st.IsDir() && !slices.Contains(watcher.WatchList(), event.Name) {
+					watcher.Add(event.Name)
+				}
+
+				if strings.Contains(event.Name, ".zevtc") {
 					logger.Debug("new event", "event", event.Name)
 					upload, err := ctx.St.Queries.CreateUpload(context.Background(), database.CreateUploadParams{
 						FilePath: event.Name,
 					})
 					if err != nil {
 						logger.Error("error adding upload to db", "err", err)
-						return
+						continue
 					}
 					logger.Info("added upload to db", "file_path", upload.FilePath)
 				}
