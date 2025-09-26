@@ -82,6 +82,21 @@ func (cfg *Config) SetValues(logPath, userToken string) error {
 	return nil
 }
 
+func (cfg *Config) AbortIfNoUserToken() {
+	if cfg.UserToken != "" {
+		return
+	}
+
+	const msg = `
+Missing UserToken!
+Get your UserToken at: https://dps.report/getUserToken
+Set your token with: arclog config set -t <your_token>
+`
+
+	fmt.Fprint(os.Stderr, msg)
+	os.Exit(1)
+}
+
 func (cfg *Config) GetSettingsString() string {
 	settings := viper.AllSettings()
 	var sb strings.Builder

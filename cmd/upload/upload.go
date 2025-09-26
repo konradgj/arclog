@@ -18,6 +18,8 @@ func NewUploadCmd(ctx *arclog.Context, cancelCtx context.Context) *cobra.Command
 		Long: `Upload logs marked as pending in db to arc dps.
 Use -w flag to upload as files are created.`,
 		Run: func(cmd *cobra.Command, args []string) {
+			ctx.Config.AbortIfNoUserToken()
+
 			if watch {
 				ctx.RunWatchUploads(anonymous, detailedwvw, cancelCtx)
 			} else {
