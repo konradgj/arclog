@@ -7,10 +7,9 @@ import (
 	"github.com/fsnotify/fsnotify"
 	"github.com/konradgj/arclog/internal/db"
 	"github.com/konradgj/arclog/internal/dpsreport"
-	"github.com/konradgj/arclog/internal/logger"
 )
 
-const appDir = "arclog"
+var osUserConfigDir = os.UserConfigDir
 
 type Context struct {
 	St              *db.Store
@@ -29,23 +28,25 @@ func NewContext(st *db.Store, cfg *Config, dpsClient *dpsreport.Client, rl *Rate
 	}
 }
 
-func GetAppDir() string {
-	configDir, err := os.UserConfigDir()
+func GetAppDirPath(appDir string) (string, error) {
+	configDir, err := osUserConfigDir()
 	if err != nil {
-		logger.Error("Could not get user config dir", "err", err)
-		os.Exit(1)
+		return "", err
 	}
 
-	appDirAbs := filepath.Join(configDir, appDir)
-	if err := os.MkdirAll(appDirAbs, 0o755); err != nil {
-		logger.Error("Could not create config dir", "err", err)
-		os.Exit(1)
+	appDirPath := filepath.Join(configDir, appDir)
+	if err := os.MkdirAll(appDirPath, 0o755); err != nil {
+		return "", err
 	}
 
-	return appDirAbs
+	return appDirPath, nil
 }
 
-func GetDbPath() string {
-	appDir := GetAppDir()
-	return filepath.Join(appDir, "arclog.db")
+func GetDbPath(appDir string) (string, error) {
+	appDirPath, err := GetAppDirPath(appDir)
+	if err != nil {
+		return "", err
+	}
+
+	return filepath.Join(appDirPath, "arclog.db"), nil
 }

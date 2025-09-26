@@ -14,11 +14,14 @@ type Config struct {
 	UserToken string `toml:"usertoken"`
 }
 
-func (cfg *Config) InitConfig() (string, error) {
-	appDir := GetAppDir()
-	configFile := filepath.Join(appDir, "config.toml")
+func (cfg *Config) InitConfig(appDir string) (string, error) {
+	appDirPath, err := GetAppDirPath(appDir)
+	if err != nil {
+		return "", fmt.Errorf("could not get app dir path: %w", err)
+	}
+	configFile := filepath.Join(appDirPath, "config.toml")
 
-	viper.AddConfigPath(appDir)
+	viper.AddConfigPath(appDirPath)
 	viper.SetConfigType("toml")
 	viper.SetConfigName("config")
 	viper.AutomaticEnv()

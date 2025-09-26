@@ -6,6 +6,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/konradgj/arclog/cmd/config"
@@ -17,6 +18,8 @@ import (
 	"github.com/konradgj/arclog/internal/logger"
 	"github.com/spf13/cobra"
 )
+
+const appDir = "arclog"
 
 func NewRootCmd(rootCtx context.Context) *cobra.Command {
 	var ctx *arclog.Context
@@ -37,13 +40,16 @@ func NewRootCmd(rootCtx context.Context) *cobra.Command {
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Enable verbose output")
 
 	st := &db.Store{}
-	dbPath := arclog.GetDbPath()
+	dbPath, err := arclog.GetDbPath(appDir)
+	if err != nil {
+		log.Fatalf("could not get db path: %v", err)
+	}
 	st.SetupDb(dbPath, verbose)
 
 	cfg := &arclog.Config{}
-	fileUsed, err := cfg.InitConfig()
+	fileUsed, err := cfg.InitConfig(appDir)
 	if err != nil {
-		logger.Error("could not initialize config", "err", err)
+		log.Fatalf("could not initialize config: %v", err)
 	}
 	fmt.Printf("Using config file: %s\n", fileUsed)
 
