@@ -18,6 +18,7 @@ type Context struct {
 	Config          *Config
 	Watcher         *fsnotify.Watcher
 	DpsReportClient *dpsreport.Client
+	RateLimiter     *RateLimiter
 }
 
 func NewContext() *Context {
@@ -34,8 +35,8 @@ func (ctx *Context) Init(verbose bool) {
 	ctx.Config = &Config{}
 	ctx.Config.InitConfig()
 
-	ctx.DpsReportClient = &dpsreport.Client{}
-	ctx.DpsReportClient.NewClient(5 * time.Minute)
+	ctx.DpsReportClient = dpsreport.NewClient(5 * time.Minute)
+	ctx.RateLimiter = NewRateLimiter(25, time.Minute)
 }
 
 func GetAppDir() string {
