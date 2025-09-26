@@ -18,6 +18,7 @@ func (ctx *Context) RunWatch(cancelCtx context.Context) {
 	err := ctx.NewWatcher(nil, cancelCtx)
 	if err != nil {
 		logger.Error("could not start watcher", "err", err)
+		os.Exit(1)
 	}
 	defer ctx.Watcher.Close()
 	fmt.Printf("Started watching dir: %s\n", ctx.Config.LogPath)
