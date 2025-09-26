@@ -18,7 +18,8 @@ func NewSetCmd(ctx *arclog.Context) *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			ctx.Config.SetValues(logPath, userToken)
 			fmt.Println("Updated config:")
-			ctx.Config.Show()
+			settings := ctx.Config.GetSettingsString()
+			fmt.Println(settings)
 		},
 	}
 	setCmd.Flags().StringVarP(&logPath, "logpath", "l", "", "Set log path")

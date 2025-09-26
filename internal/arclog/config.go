@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
-	"github.com/konradgj/arclog/internal/logger"
 	"github.com/spf13/viper"
 )
 
@@ -14,20 +14,18 @@ type Config struct {
 	UserToken string `toml:"usertoken"`
 }
 
-func (cfg *Config) InitConfig() {
+func (cfg *Config) InitConfig() (string, error) {
 	appDir := GetAppDir()
-
 	configFile := filepath.Join(appDir, "config.toml")
+
 	viper.AddConfigPath(appDir)
 	viper.SetConfigType("toml")
 	viper.SetConfigName("config")
-
 	viper.AutomaticEnv()
 
 	home, err := os.UserHomeDir()
 	if err != nil {
-		logger.Error("Could not get user home dir", "err", err)
-		os.Exit(1)
+		return "", fmt.Errorf("could not get user home dir: %w", err)
 	}
 
 	defaultLogPath := filepath.Join("Documents", "Guild Wars 2", "addons", "arcdps.cbtlogs")
@@ -35,26 +33,21 @@ func (cfg *Config) InitConfig() {
 	viper.SetDefault("UserToken", "")
 
 	if err := viper.ReadInConfig(); err != nil {
-
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			if err = viper.SafeWriteConfig(); err != nil {
-				logger.Error("Could not create new config file", "err", err)
-				os.Exit(1)
+			if err := viper.SafeWriteConfig(); err != nil {
+				return "", fmt.Errorf("could not create new config file: %w", err)
 			}
-
 			viper.SetConfigFile(configFile)
-			logger.Debug("Created new config file", "path", viper.ConfigFileUsed())
 		} else {
-			logger.Error("Could not read config", "err", err)
-			os.Exit(1)
+			return "", fmt.Errorf("could not read config: %w", err)
 		}
 	}
 
-	err = cfg.Unmarshal()
-	if err != nil {
-		logger.Error("error unmarshaling config", "err", err)
+	if err := cfg.Unmarshal(); err != nil {
+		return "", fmt.Errorf("error unmarshaling config: %w", err)
 	}
-	fmt.Println("Using config file:", viper.ConfigFileUsed())
+
+	return viper.ConfigFileUsed(), nil
 }
 
 func (cfg *Config) Unmarshal() error {
@@ -65,7 +58,7 @@ func (cfg *Config) Unmarshal() error {
 	return nil
 }
 
-func (cfg *Config) SetValues(logPath, userToken string) {
+func (cfg *Config) SetValues(logPath, userToken string) error {
 	if logPath != "" {
 		viper.Set("LogPath", logPath)
 	}
@@ -75,33 +68,34 @@ func (cfg *Config) SetValues(logPath, userToken string) {
 
 	err := viper.WriteConfig()
 	if err != nil {
-		logger.Error("could not write config", "error", err)
+		return fmt.Errorf("could not write config: %w", err)
 	}
 
 	err = cfg.Unmarshal()
 	if err != nil {
-		logger.Error("error unmarshaling config", "err", err)
+		return fmt.Errorf("could not unmarshal config after write: %w", err)
 	}
+
+	return nil
 }
 
-func (cfg *Config) Show() {
+func (cfg *Config) GetSettingsString() string {
 	settings := viper.AllSettings()
-	printSettings(settings, 0)
+	var sb strings.Builder
+	genSettingString(settings, 0, &sb)
+	return sb.String()
 }
 
-func printSettings(m map[string]any, indent int) {
-	prefix := ""
-	for range indent {
-		prefix += "  " // two spaces per level
-	}
+func genSettingString(m map[string]any, indent int, sb *strings.Builder) {
+	prefix := strings.Repeat("  ", indent)
 
 	for k, v := range m {
 		switch val := v.(type) {
-		case map[string]any: // nested table
-			fmt.Printf("%s- %s:\n", prefix, k)
-			printSettings(val, indent+1)
+		case map[string]any:
+			fmt.Fprintf(sb, "%s- %s:\n", prefix, k)
+			genSettingString(val, indent+1, sb)
 		default:
-			fmt.Printf("%s- %s = %v\n", prefix, k, val)
+			fmt.Fprintf(sb, "%s- %s = %v\n", prefix, k, val)
 		}
 	}
 }

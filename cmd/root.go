@@ -5,6 +5,7 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/konradgj/arclog/cmd/config"
@@ -40,10 +41,15 @@ func NewRootCmd(rootCtx context.Context) *cobra.Command {
 	st.SetupDb(dbPath, verbose)
 
 	cfg := &arclog.Config{}
-	cfg.InitConfig()
+	fileUsed, err := cfg.InitConfig()
+	if err != nil {
+		logger.Error("could not initialize config", "err", err)
+	}
+	fmt.Printf("Using config file: %s\n", fileUsed)
 
 	dpsClient := dpsreport.NewClient(5 * time.Minute)
 	rl := arclog.NewRateLimiter(25, time.Minute)
+
 	ctx = arclog.NewContext(st, cfg, dpsClient, rl)
 
 	rootCmd.AddCommand(

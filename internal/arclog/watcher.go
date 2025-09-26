@@ -20,6 +20,7 @@ func (ctx *Context) RunWatch(cancelCtx context.Context) {
 		logger.Error("Could not start watcher", "err", err)
 	}
 	defer ctx.Watcher.Close()
+	fmt.Printf("Started watching dir: %s\n", ctx.Config.LogPath)
 
 	<-cancelCtx.Done()
 	logger.Info("shutting down...")
@@ -93,7 +94,7 @@ func (ctx *Context) NewWatcher(jobs chan<- UploadJob, cancelCtx context.Context)
 
 	err = ctx.Config.Unmarshal()
 	if err != nil {
-		logger.Error("Could not umarshal config", "err", err)
+		return fmt.Errorf("could not umarshal config: %w", err)
 	}
 
 	err = watcher.Add(ctx.Config.LogPath)
@@ -110,8 +111,6 @@ func (ctx *Context) NewWatcher(jobs chan<- UploadJob, cancelCtx context.Context)
 	if err != nil {
 		return fmt.Errorf("could not add path to watcher: %w", err)
 	}
-
-	fmt.Printf("Started watching dir: %s\n", ctx.Config.LogPath)
 
 	return nil
 }

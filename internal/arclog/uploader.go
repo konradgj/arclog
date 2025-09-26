@@ -2,6 +2,7 @@ package arclog
 
 import (
 	"context"
+	"fmt"
 	"math/rand"
 	"os"
 	"strconv"
@@ -40,6 +41,7 @@ func (ctx *Context) RunWatchUploads(anonymous, detailedwvw bool, cancelCtx conte
 		logger.Error("could not start watcher: %w", err)
 		os.Exit(1)
 	}
+	fmt.Printf("Started watching dir: %s\n", ctx.Config.LogPath)
 
 	<-cancelCtx.Done()
 	logger.Info("shutting down...")
