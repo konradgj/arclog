@@ -69,7 +69,7 @@ func (ctx *Context) UploadLog(job UploadJob, anonymous, detailedwvw bool) {
 		DetailedWvW: detailedwvw,
 	}
 
-	ctx.RateLimiter.Aquire()
+	ctx.RateLimiter.Wait()
 	resp, err := ctx.DpsReportClient.UploadContent(job.Upload.FilePath, opts)
 	if err != nil && resp == nil {
 		logger.Error("could not upload", "err", err)

@@ -24,6 +24,6 @@ func NewRateLimiter(limit int, per time.Duration) *RateLimiter {
 	return rl
 }
 
-func (rl *RateLimiter) Aquire() {
+func (rl *RateLimiter) Wait() {
 	<-rl.tokens
 }
