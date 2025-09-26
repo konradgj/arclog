@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/fsnotify/fsnotify"
 	"github.com/konradgj/arclog/internal/db"
 	"github.com/konradgj/arclog/internal/dpsreport"
 	"github.com/konradgj/arclog/internal/logger"
@@ -15,6 +16,7 @@ const appDir = "arclog"
 type Context struct {
 	St              *db.Store
 	Config          *Config
+	Watcher         *fsnotify.Watcher
 	DpsReportClient *dpsreport.Client
 }
 

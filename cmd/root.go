@@ -4,13 +4,16 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"context"
+
 	"github.com/konradgj/arclog/cmd/config"
 	"github.com/konradgj/arclog/cmd/watch"
 	"github.com/konradgj/arclog/internal/arclog"
 	"github.com/spf13/cobra"
 )
 
-func NewRootCmd() *cobra.Command {
+func NewRootCmd(rootCtx context.Context) *cobra.Command {
+
 	var verbose bool
 	ctx := arclog.NewContext()
 
@@ -29,7 +32,7 @@ func NewRootCmd() *cobra.Command {
 
 	rootCmd.AddCommand(
 		config.NewConfigCmd(ctx),
-		watch.NewWatchCmd(ctx),
+		watch.NewWatchCmd(ctx, rootCtx),
 	)
 
 	return rootCmd

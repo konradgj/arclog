@@ -4,45 +4,42 @@ import (
 	"context"
 	"fmt"
 	"io/fs"
-	"log"
 	"os"
 	"path/filepath"
 	"slices"
 	"strings"
-	"time"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/konradgj/arclog/internal/database"
 	"github.com/konradgj/arclog/internal/logger"
 )
 
-func RunWatch(ctx *Context) {
-	jobs := ctx.StartWorkerPool(4)
+func RunWatch(ctx *Context, cancelCtx context.Context) {
+	err := ctx.NewWatcher(nil, cancelCtx)
+	if err != nil {
+		logger.Error("Could not start watcher", "err", err)
+	}
+	defer ctx.Watcher.Close()
 
-	go func() {
-		ticker := time.NewTicker(1 * time.Minute)
-		defer ticker.Stop()
-
-		for range ticker.C {
-			ctx.EnqueuePending(jobs)
-		}
-	}()
-
-	ctx.NewWatcher(jobs)
+	<-cancelCtx.Done()
+	logger.Info("shutting down...")
+	if ctx.Watcher != nil {
+		ctx.Watcher.Close()
+	}
 }
 
-func (ctx *Context) NewWatcher(jobs chan<- UploadJob) {
-	// Create new watcher.
+func (ctx *Context) NewWatcher(jobs chan<- UploadJob, cancelCtx context.Context) error {
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
-		log.Fatal(err)
+		return fmt.Errorf("could not create new watcher: %w", err)
 	}
-	defer watcher.Close()
+	ctx.Watcher = watcher
 
-	// Start listening for events.
 	go func() {
 		for {
 			select {
+			case <-cancelCtx.Done():
+				return
 			case event, ok := <-watcher.Events:
 				if !ok {
 					return
@@ -83,22 +80,25 @@ func (ctx *Context) NewWatcher(jobs chan<- UploadJob) {
 
 			case err, ok := <-watcher.Errors:
 				if !ok {
-					logger.Error("Error", "err", err)
+					logger.Warn("watcher errors channel closed")
+					return
+				}
+				if err != nil {
+					logger.Error("watcher error", "err", err)
 					return
 				}
 			}
 		}
 	}()
 
+	err = ctx.Config.Unmarshal()
 	if err != nil {
 		logger.Error("Could not umarshal config", "err", err)
 	}
 
-	// Add a path.
 	err = watcher.Add(ctx.Config.LogPath)
 	if err != nil {
-		logger.Error("Could not add path to watcher", "err", err)
-		os.Exit(1)
+		return fmt.Errorf("could not add path to watcher: %w", err)
 	}
 	// Add subdirs recursivly
 	err = filepath.WalkDir(ctx.Config.LogPath, func(path string, d fs.DirEntry, err error) error {
@@ -108,12 +108,10 @@ func (ctx *Context) NewWatcher(jobs chan<- UploadJob) {
 		return nil
 	})
 	if err != nil {
-		logger.Error("Could not add path to watcher", "err", err)
-		os.Exit(1)
+		return fmt.Errorf("could not add path to watcher: %w", err)
 	}
 
 	fmt.Printf("Started watching dir: %s\n", ctx.Config.LogPath)
 
-	// Block main goroutine forever.
-	<-make(chan struct{})
+	return nil
 }
