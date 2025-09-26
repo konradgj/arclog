@@ -10,11 +10,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var (
-	verbose bool
-)
+func NewRootCmd() *cobra.Command {
+	var verbose bool
 
-func NewRootCmd(ctx *app.Context) *cobra.Command {
+	ctx := app.NewContext(verbose)
+
 	rootCmd := &cobra.Command{
 		Use:   "arclog",
 		Short: "Upload arc-dps log sto dps.report",

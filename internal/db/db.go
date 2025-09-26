@@ -16,10 +16,10 @@ type Store struct {
 	db *sql.DB
 }
 
-func (s *Store) SetupDb(dbPath string, verbose bool, l *logger.Logger) {
+func (s *Store) SetupDb(dbPath string, verbose bool) {
 	db, err := initDb(dbPath)
 	if err != nil {
-		l.Error("could not init db", "err", err)
+		logger.Error("could not init db", "err", err)
 		os.Exit(1)
 	}
 
@@ -28,7 +28,7 @@ func (s *Store) SetupDb(dbPath string, verbose bool, l *logger.Logger) {
 	}
 
 	if err := migrateDb(db); err != nil {
-		l.Error("could not migrate db", "err", err)
+		logger.Error("could not migrate db", "err", err)
 	}
 
 	s.db = db

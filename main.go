@@ -4,18 +4,17 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 package main
 
 import (
+	"log"
 	"os"
 
 	"github.com/konradgj/arclog/cmd"
-	"github.com/konradgj/arclog/internal/app"
 )
 
 func main() {
-	ctx := app.NewContext()
 
-	cmd := cmd.NewRootCmd(ctx)
+	cmd := cmd.NewRootCmd()
 	if err := cmd.Execute(); err != nil {
-		ctx.Log.Error("CLI execution failed", "err", err)
+		log.Fatalf("CLI execution failed: %v", err)
 		os.Exit(1)
 	}
 }

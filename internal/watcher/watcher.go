@@ -12,6 +12,7 @@ import (
 	"github.com/fsnotify/fsnotify"
 	"github.com/konradgj/arclog/internal/app"
 	"github.com/konradgj/arclog/internal/database"
+	"github.com/konradgj/arclog/internal/logger"
 )
 
 func Watch(ctx *app.Context) {
@@ -31,32 +32,33 @@ func Watch(ctx *app.Context) {
 					return
 				}
 				if event.Has(fsnotify.Create) && strings.Contains(event.Name, ".zevtc") {
-					ctx.Log.Info("new event", "event", event.Name)
+					logger.Info("new event", "event", event.Name)
 					upload, err := ctx.St.Queries.CreateUpload(context.Background(), database.CreateUploadParams{
 						FilePath: event.Name,
 					})
 					if err != nil {
-						ctx.Log.Error("error adding upload to db", "err", err)
+						logger.Error("error adding upload to db", "err", err)
+						return
 					}
-					ctx.Log.Info("added upload to db", "file_path", upload.FilePath)
+					logger.Info("added upload to db", "file_path", upload.FilePath)
 				}
 			case err, ok := <-watcher.Errors:
 				if !ok {
 					return
 				}
-				ctx.Log.Error("Error", "err", err)
+				logger.Error("Error", "err", err)
 			}
 		}
 	}()
 
 	if err != nil {
-		ctx.Log.Error("Could not umarshal config", "err", err)
+		logger.Error("Could not umarshal config", "err", err)
 	}
 
 	// Add a path.
 	err = watcher.Add(ctx.Config.LogPath)
 	if err != nil {
-		ctx.Log.Error("Could not add path to watcher", "err", err)
+		logger.Error("Could not add path to watcher", "err", err)
 		os.Exit(1)
 	}
 	// Add subdirs recursivly
@@ -67,7 +69,7 @@ func Watch(ctx *app.Context) {
 		return nil
 	})
 	if err != nil {
-		ctx.Log.Error("Could not add path to watcher", "err", err)
+		logger.Error("Could not add path to watcher", "err", err)
 		os.Exit(1)
 	}
 

@@ -14,8 +14,8 @@ type Config struct {
 	UserToken string `toml:"usertoken"`
 }
 
-func (cfg *Config) InitConfig(l *logger.Logger) {
-	appDir := GetAppDir(l)
+func (cfg *Config) InitConfig() {
+	appDir := GetAppDir()
 
 	configFile := filepath.Join(appDir, "config.toml")
 	viper.AddConfigPath(appDir)
@@ -26,7 +26,7 @@ func (cfg *Config) InitConfig(l *logger.Logger) {
 
 	home, err := os.UserHomeDir()
 	if err != nil {
-		l.Error("Could not get user home dir", "err", err)
+		logger.Error("Could not get user home dir", "err", err)
 		os.Exit(1)
 	}
 
@@ -38,21 +38,21 @@ func (cfg *Config) InitConfig(l *logger.Logger) {
 
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 			if err = viper.SafeWriteConfig(); err != nil {
-				l.Error("Could not create new config file", "err", err)
+				logger.Error("Could not create new config file", "err", err)
 				os.Exit(1)
 			}
 
 			viper.SetConfigFile(configFile)
-			l.Debug("Created new config file", "path", viper.ConfigFileUsed())
+			logger.Debug("Created new config file", "path", viper.ConfigFileUsed())
 		} else {
-			l.Error("Could not read config", "err", err)
+			logger.Error("Could not read config", "err", err)
 			os.Exit(1)
 		}
 	}
 
 	err = cfg.Unmarshal()
 	if err != nil {
-		l.Error("error unmarshaling config", "err", err)
+		logger.Error("error unmarshaling config", "err", err)
 	}
 	fmt.Println("Using config file:", viper.ConfigFileUsed())
 }

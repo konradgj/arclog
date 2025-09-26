@@ -12,45 +12,42 @@ const appDir = "arclog"
 
 type Context struct {
 	St     *db.Store
-	Log    *logger.Logger
 	Config *Config
 }
 
-func NewContext() *Context {
-	log := &logger.Logger{}
-	log.InitLogger()
+func NewContext(verbose bool) *Context {
+	logger.Initlogger(verbose)
 
 	store := &db.Store{}
-	dbPath := getDbPath(log)
-	store.SetupDb(dbPath, false, log)
+	dbPath := getDbPath()
+	store.SetupDb(dbPath, false)
 
 	ctx := &Context{
 		St:     store,
-		Log:    log,
 		Config: &Config{},
 	}
-	ctx.Config.InitConfig(log)
+	ctx.Config.InitConfig()
 
 	return ctx
 }
 
-func GetAppDir(l *logger.Logger) string {
+func GetAppDir() string {
 	configDir, err := os.UserConfigDir()
 	if err != nil {
-		l.Error("Could not get user config dir", "err", err)
+		logger.Error("Could not get user config dir", "err", err)
 		os.Exit(1)
 	}
 
 	appDirAbs := filepath.Join(configDir, appDir)
 	if err := os.MkdirAll(appDirAbs, 0o755); err != nil {
-		l.Error("Could not create config dir", "err", err)
+		logger.Error("Could not create config dir", "err", err)
 		os.Exit(1)
 	}
 
 	return appDirAbs
 }
 
-func getDbPath(l *logger.Logger) string {
-	appDir := GetAppDir(l)
+func getDbPath() string {
+	appDir := GetAppDir()
 	return filepath.Join(appDir, "arclog.db")
 }

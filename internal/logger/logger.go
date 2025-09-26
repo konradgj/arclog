@@ -8,13 +8,11 @@ import (
 	"path/filepath"
 )
 
-type Logger struct {
-	*slog.Logger
-}
+var logger *slog.Logger
 
 const appDir = "arclog"
 
-func (l *Logger) InitLogger() {
+func Initlogger(verbose bool) {
 	logPath := getAppLogPath()
 
 	f, err := os.OpenFile(logPath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0o644)
@@ -23,19 +21,22 @@ func (l *Logger) InitLogger() {
 	}
 
 	level := slog.LevelInfo
+	if verbose {
+		level = slog.LevelDebug
+	}
 
 	multiWriter := io.MultiWriter(os.Stderr, f)
 
-	l.Logger = slog.New(slog.NewTextHandler(multiWriter, &slog.HandlerOptions{
+	logger = slog.New(slog.NewTextHandler(multiWriter, &slog.HandlerOptions{
 		Level: level,
 	}))
 }
 
 // Convenience functions
-func (l *Logger) Info(msg string, args ...any)  { l.Logger.Info(msg, args...) }
-func (l *Logger) Debug(msg string, args ...any) { l.Logger.Debug(msg, args...) }
-func (l *Logger) Error(msg string, args ...any) { l.Logger.Error(msg, args...) }
-func (l *Logger) Warn(msg string, args ...any)  { l.Logger.Warn(msg, args...) }
+func Info(msg string, args ...any)  { logger.Info(msg, args...) }
+func Debug(msg string, args ...any) { logger.Debug(msg, args...) }
+func Error(msg string, args ...any) { logger.Error(msg, args...) }
+func Warn(msg string, args ...any)  { logger.Warn(msg, args...) }
 
 func getAppLogPath() string {
 	configDir, err := os.UserConfigDir()

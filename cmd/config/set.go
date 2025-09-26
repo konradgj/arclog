@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"github.com/konradgj/arclog/internal/app"
+	"github.com/konradgj/arclog/internal/logger"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -40,7 +41,7 @@ func setValues(ctx *app.Context, logPath, userToken string) {
 
 	err := viper.WriteConfig()
 	if err != nil {
-		ctx.Log.Error("could not write config", "error", err)
+		logger.Error("could not write config", "error", err)
 	}
 
 	fmt.Println("Updated config:")
