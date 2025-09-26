@@ -65,6 +65,25 @@ func (cfg *Config) Unmarshal() error {
 	return nil
 }
 
+func (cfg *Config) SetValues(logPath, userToken string) {
+	if logPath != "" {
+		viper.Set("LogPath", logPath)
+	}
+	if userToken != "" {
+		viper.Set("UserToken", userToken)
+	}
+
+	err := viper.WriteConfig()
+	if err != nil {
+		logger.Error("could not write config", "error", err)
+	}
+
+	err = cfg.Unmarshal()
+	if err != nil {
+		logger.Error("error unmarshaling config", "err", err)
+	}
+}
+
 func (cfg *Config) Show() {
 	settings := viper.AllSettings()
 	printSettings(settings, 0)

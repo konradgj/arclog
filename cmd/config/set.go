@@ -7,9 +7,7 @@ import (
 	"fmt"
 
 	"github.com/konradgj/arclog/internal/app"
-	"github.com/konradgj/arclog/internal/logger"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 func NewSetCmd(ctx *app.Context) *cobra.Command {
@@ -21,7 +19,9 @@ func NewSetCmd(ctx *app.Context) *cobra.Command {
 		Short: "Set values in config",
 		Long:  `Set values for config file.`,
 		Run: func(cmd *cobra.Command, args []string) {
-			setValues(ctx, logPath, userToken)
+			ctx.Config.SetValues(logPath, userToken)
+			fmt.Println("Updated config:")
+			ctx.Config.Show()
 		},
 	}
 	setCmd.Flags().StringVarP(&logPath, "logpath", "l", "", "Set log path")
@@ -29,21 +29,4 @@ func NewSetCmd(ctx *app.Context) *cobra.Command {
 	setCmd.MarkFlagsOneRequired("logpath", "usertoken")
 
 	return setCmd
-}
-
-func setValues(ctx *app.Context, logPath, userToken string) {
-	if logPath != "" {
-		viper.Set("LogPath", logPath)
-	}
-	if userToken != "" {
-		viper.Set("UserToken", userToken)
-	}
-
-	err := viper.WriteConfig()
-	if err != nil {
-		logger.Error("could not write config", "error", err)
-	}
-
-	fmt.Println("Updated config:")
-	ctx.Config.Show()
 }
