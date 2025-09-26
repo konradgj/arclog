@@ -28,10 +28,10 @@ func RunWatch(ctx *Context) {
 		}
 	}()
 
-	ctx.NewWatcher()
+	ctx.NewWatcher(jobs)
 }
 
-func (ctx *Context) NewWatcher() {
+func (ctx *Context) NewWatcher(jobs chan<- UploadJob) {
 	// Create new watcher.
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
@@ -61,17 +61,26 @@ func (ctx *Context) NewWatcher() {
 					watcher.Add(event.Name)
 				}
 
-				if strings.Contains(event.Name, ".zevtc") {
-					logger.Debug("new event", "event", event.Name)
-					upload, err := ctx.St.Queries.CreateUpload(context.Background(), database.CreateUploadParams{
-						FilePath: event.Name,
-					})
-					if err != nil {
-						logger.Error("error adding upload to db", "err", err)
-						continue
-					}
-					logger.Info("added upload to db", "file_path", upload.FilePath)
+				if !strings.HasSuffix(event.Name, ".zevtc") {
+					continue
 				}
+
+				logger.Debug("new event", "event", event.Name)
+				upload, err := ctx.St.Queries.CreateUpload(context.Background(), database.CreateUploadParams{
+					FilePath: event.Name,
+				})
+				if err != nil {
+					logger.Error("error adding upload to db", "err", err)
+					continue
+				}
+
+				logger.Info("added upload to db", "file_path", upload.FilePath)
+
+				if jobs != nil {
+					jobs <- UploadJob{Upload: upload}
+					logger.Debug("enqueued upload job", "file", upload.FilePath)
+				}
+
 			case err, ok := <-watcher.Errors:
 				if !ok {
 					logger.Error("Error", "err", err)
