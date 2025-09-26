@@ -29,6 +29,7 @@ func (s *Store) SetupDb(dbPath string, verbose bool) {
 
 	if err := migrateDb(db); err != nil {
 		logger.Error("could not migrate db", "err", err)
+		os.Exit(1)
 	}
 
 	s.DB = db

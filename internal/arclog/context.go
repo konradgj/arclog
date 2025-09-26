@@ -1,8 +1,10 @@
 package arclog
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/konradgj/arclog/internal/db"
@@ -26,6 +28,27 @@ func NewContext(st *db.Store, cfg *Config, dpsClient *dpsreport.Client, rl *Rate
 		DpsReportClient: dpsClient,
 		RateLimiter:     rl,
 	}
+}
+
+func InitContext(appDir string, verbose bool) (*Context, error) {
+	st := &db.Store{}
+	dbPath, err := GetDbPath(appDir)
+	if err != nil {
+		return nil, fmt.Errorf("could not get db path: %w", err)
+	}
+	st.SetupDb(dbPath, verbose)
+
+	cfg := &Config{}
+	fileUsed, err := cfg.InitConfig(appDir)
+	if err != nil {
+		return nil, fmt.Errorf("could not initialize config: %w", err)
+	}
+	fmt.Printf("Using config file: %s\n", fileUsed)
+
+	dpsClient := dpsreport.NewClient(5 * time.Minute)
+	rl := NewRateLimiter(25, time.Minute)
+
+	return NewContext(st, cfg, dpsClient, rl), nil
 }
 
 func GetAppDirPath(appDir string) (string, error) {

@@ -20,9 +20,9 @@ func Initlogger(verbose bool) {
 		panic(err)
 	}
 
-	level := slog.LevelInfo
+	level := slog.LevelWarn
 	if verbose {
-		level = slog.LevelDebug
+		level = slog.LevelInfo
 	}
 
 	multiWriter := io.MultiWriter(os.Stderr, f)
