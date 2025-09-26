@@ -32,7 +32,6 @@ func Initlogger(verbose bool) {
 	}))
 }
 
-// Convenience functions
 func Info(msg string, args ...any)  { logger.Info(msg, args...) }
 func Debug(msg string, args ...any) { logger.Debug(msg, args...) }
 func Error(msg string, args ...any) { logger.Error(msg, args...) }
