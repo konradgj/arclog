@@ -1,4 +1,4 @@
-package watcher
+package app
 
 import (
 	"context"
@@ -10,12 +10,11 @@ import (
 	"strings"
 
 	"github.com/fsnotify/fsnotify"
-	"github.com/konradgj/arclog/internal/app"
 	"github.com/konradgj/arclog/internal/database"
 	"github.com/konradgj/arclog/internal/logger"
 )
 
-func Watch(ctx *app.Context) {
+func (ctx *Context) NewWatcher() {
 	// Create new watcher.
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {

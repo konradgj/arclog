@@ -11,7 +11,6 @@ import (
 )
 
 func main() {
-
 	cmd := cmd.NewRootCmd()
 	if err := cmd.Execute(); err != nil {
 		log.Fatalf("CLI execution failed: %v", err)
