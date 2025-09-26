@@ -8,11 +8,27 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/konradgj/arclog/internal/database"
 	"github.com/konradgj/arclog/internal/logger"
 )
+
+func RunWatch(ctx *Context) {
+	jobs := ctx.StartWorkerPool(4)
+
+	go func() {
+		ticker := time.NewTicker(1 * time.Minute)
+		defer ticker.Stop()
+
+		for range ticker.C {
+			ctx.EnqueuePending(jobs)
+		}
+	}()
+
+	ctx.NewWatcher()
+}
 
 func (ctx *Context) NewWatcher() {
 	// Create new watcher.
@@ -31,7 +47,7 @@ func (ctx *Context) NewWatcher() {
 					return
 				}
 				if event.Has(fsnotify.Create) && strings.Contains(event.Name, ".zevtc") {
-					logger.Info("new event", "event", event.Name)
+					logger.Debug("new event", "event", event.Name)
 					upload, err := ctx.St.Queries.CreateUpload(context.Background(), database.CreateUploadParams{
 						FilePath: event.Name,
 					})

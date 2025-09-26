@@ -7,8 +7,8 @@ arc-dps log uploader
   - [x] up and down migrations
 - [ ] watcher
   - [x] write to uploads on file
-  - [ ] workers
-  - [ ] concurrent workers
+  - [x] workers
+  - [x] concurrent workers
 - [ ] usertoken command
   - [ ] user fav browser to get user token and set in config
 - [ ] http client

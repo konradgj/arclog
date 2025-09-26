@@ -14,7 +14,7 @@ type Upload struct {
 	FilePath     string
 	Url          sql.NullString
 	Status       string
-	StatusReason sql.NullString
+	StatusReason string
 	Active       int64
 	CreatedAt    time.Time
 	UpdatedAt    time.Time

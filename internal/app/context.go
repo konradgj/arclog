@@ -15,20 +15,18 @@ type Context struct {
 	Config *Config
 }
 
-func NewContext(verbose bool) *Context {
+func NewContext() *Context {
+	return &Context{}
+}
+func (ctx *Context) Init(verbose bool) {
 	logger.Initlogger(verbose)
 
-	store := &db.Store{}
+	ctx.St = &db.Store{}
 	dbPath := getDbPath()
-	store.SetupDb(dbPath, false)
+	ctx.St.SetupDb(dbPath, verbose)
 
-	ctx := &Context{
-		St:     store,
-		Config: &Config{},
-	}
+	ctx.Config = &Config{}
 	ctx.Config.InitConfig()
-
-	return ctx
 }
 
 func GetAppDir() string {

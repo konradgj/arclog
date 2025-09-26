@@ -12,8 +12,7 @@ import (
 
 func NewRootCmd() *cobra.Command {
 	var verbose bool
-
-	ctx := app.NewContext(verbose)
+	ctx := app.NewContext()
 
 	rootCmd := &cobra.Command{
 		Use:   "arclog",
@@ -21,7 +20,9 @@ func NewRootCmd() *cobra.Command {
 		Long:  `arclog is a CLI tool for uploading ardps logs to dps.report as they are generated.`,
 		// Uncomment the following line if your bare application
 		// has an action associated with it:
-		// Run: func(cmd *cobra.Command, args []string) { },
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			ctx.Init(verbose)
+		},
 	}
 
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Enable verbose output")

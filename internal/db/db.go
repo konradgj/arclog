@@ -12,8 +12,8 @@ import (
 )
 
 type Store struct {
-	*database.Queries
-	db *sql.DB
+	Queries *database.Queries
+	DB      *sql.DB
 }
 
 func (s *Store) SetupDb(dbPath string, verbose bool) {
@@ -31,8 +31,15 @@ func (s *Store) SetupDb(dbPath string, verbose bool) {
 		logger.Error("could not migrate db", "err", err)
 	}
 
-	s.db = db
+	s.DB = db
 	s.Queries = database.New(db)
+}
+
+func WrapNullStr(s string) sql.NullString {
+	return sql.NullString{
+		String: s,
+		Valid:  s != "",
+	}
 }
 
 func migrateDb(db *sql.DB) error {

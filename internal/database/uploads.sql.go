@@ -34,3 +34,88 @@ func (q *Queries) CreateUpload(ctx context.Context, arg CreateUploadParams) (Upl
 	)
 	return i, err
 }
+
+const listUploadsByStatus = `-- name: ListUploadsByStatus :many
+SELECT id, file_path, url, status, status_reason, active, created_at, updated_at FROM uploads WHERE status = ? ORDER BY created_at DESC
+`
+
+func (q *Queries) ListUploadsByStatus(ctx context.Context, status string) ([]Upload, error) {
+	rows, err := q.db.QueryContext(ctx, listUploadsByStatus, status)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Upload
+	for rows.Next() {
+		var i Upload
+		if err := rows.Scan(
+			&i.ID,
+			&i.FilePath,
+			&i.Url,
+			&i.Status,
+			&i.StatusReason,
+			&i.Active,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const updateUploadStatus = `-- name: UpdateUploadStatus :exec
+UPDATE uploads
+SET
+    status = ?,
+    status_reason = ?,
+    updated_at = CURRENT_TIMESTAMP
+WHERE
+    id = ?
+`
+
+type UpdateUploadStatusParams struct {
+	Status       string
+	StatusReason string
+	ID           int64
+}
+
+func (q *Queries) UpdateUploadStatus(ctx context.Context, arg UpdateUploadStatusParams) error {
+	_, err := q.db.ExecContext(ctx, updateUploadStatus, arg.Status, arg.StatusReason, arg.ID)
+	return err
+}
+
+const updateUploadUrl = `-- name: UpdateUploadUrl :exec
+UPDATE uploads
+SET
+    url = ?,
+    status = ?,
+    status_reason = ?,
+    updated_at = CURRENT_TIMESTAMP
+WHERE
+    id = ?
+`
+
+type UpdateUploadUrlParams struct {
+	Url          sql.NullString
+	Status       string
+	StatusReason string
+	ID           int64
+}
+
+func (q *Queries) UpdateUploadUrl(ctx context.Context, arg UpdateUploadUrlParams) error {
+	_, err := q.db.ExecContext(ctx, updateUploadUrl,
+		arg.Url,
+		arg.Status,
+		arg.StatusReason,
+		arg.ID,
+	)
+	return err
+}

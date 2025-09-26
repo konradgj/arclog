@@ -13,7 +13,9 @@ const (
 type UploadReason string
 
 const (
-	ReasonNone      UploadReason = ""
+	ReasonNone      UploadReason = "none"
 	ReasonCreate    UploadReason = "create"
+	ReasonUploading UploadReason = "uploading"
+	ReasonSuccess   UploadReason = "success"
 	ReasonQueueFull UploadReason = "queue_full"
 )

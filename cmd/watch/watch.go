@@ -16,7 +16,7 @@ func NewWatchCmd(ctx *app.Context) *cobra.Command {
 		Long: `Start monitoring for creation of arc-dps logs.
 Will upload the logs to dps.report using current configuration file.`,
 		Run: func(cmd *cobra.Command, args []string) {
-			ctx.NewWatcher()
+			app.RunWatch(ctx)
 		},
 	}
 }
