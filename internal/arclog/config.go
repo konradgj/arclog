@@ -106,8 +106,8 @@ func (cfg *Config) GetSettingsString() string {
 	}
 
 	fields := []field{
-		{"LogPath", cfg.LogPath},
-		{"UserToken", cfg.UserToken},
+		{"logpath", cfg.LogPath},
+		{"usertoken", cfg.UserToken},
 	}
 
 	for _, f := range fields {
