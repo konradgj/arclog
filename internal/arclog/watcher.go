@@ -93,10 +93,10 @@ func (ctx *Context) NewWatcher(jobs chan<- UploadJob, cancelCtx context.Context)
 		}
 	}()
 
-	err = ctx.Config.Unmarshal()
-	if err != nil {
-		return fmt.Errorf("could not umarshal config: %w", err)
-	}
+	// err = ctx.Config.Unmarshal()
+	// if err != nil {
+	// 	return fmt.Errorf("could not umarshal config: %w", err)
+	// }
 
 	err = watcher.Add(ctx.Config.LogPath)
 	if err != nil {

@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/spf13/viper"
+	"github.com/pelletier/go-toml/v2"
 )
 
 type Config struct {
@@ -15,71 +15,71 @@ type Config struct {
 }
 
 func (cfg *Config) InitConfig(appDir string) (string, error) {
-	appDirPath, err := GetAppDirPath(appDir)
+	configFile, err := GetConfigFilePath(appDir)
 	if err != nil {
-		return "", fmt.Errorf("could not get app dir path: %w", err)
+		return "", fmt.Errorf("could not get config file path: %w", err)
 	}
-	configFile := filepath.Join(appDirPath, "config.toml")
-
-	viper.AddConfigPath(appDirPath)
-	viper.SetConfigType("toml")
-	viper.SetConfigName("config")
-	viper.AutomaticEnv()
 
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return "", fmt.Errorf("could not get user home dir: %w", err)
 	}
 
-	defaultLogPath := filepath.Join("Documents", "Guild Wars 2", "addons", "arcdps.cbtlogs")
-	viper.SetDefault("LogPath", filepath.Join(home, defaultLogPath))
-	viper.SetDefault("UserToken", "")
+	if cfg.LogPath == "" {
+		cfg.LogPath = filepath.Join(home, "Documents", "Guild Wars 2", "addons", "arcdps.cbtlogs")
+	}
+	if cfg.UserToken == "" {
+		cfg.UserToken = ""
+	}
 
-	if err := viper.ReadInConfig(); err != nil {
-		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			if err := viper.SafeWriteConfig(); err != nil {
-				return "", fmt.Errorf("could not create new config file: %w", err)
-			}
-			viper.SetConfigFile(configFile)
-		} else {
-			return "", fmt.Errorf("could not read config: %w", err)
+	if _, err := os.Stat(configFile); os.IsNotExist(err) {
+		if err := cfg.Save(configFile); err != nil {
+			return "", fmt.Errorf("could not create new config file: %w", err)
 		}
+		return configFile, nil
+	} else if err != nil {
+		return "", fmt.Errorf("could not stat config file: %w", err)
 	}
 
-	if err := cfg.Unmarshal(); err != nil {
-		return "", fmt.Errorf("error unmarshaling config: %w", err)
+	data, err := os.ReadFile(configFile)
+	if err != nil {
+		return "", fmt.Errorf("could not read config file: %w", err)
 	}
 
-	return viper.ConfigFileUsed(), nil
+	if err := toml.Unmarshal(data, cfg); err != nil {
+		return "", fmt.Errorf("could not decode config file: %w", err)
+	}
+
+	return configFile, nil
 }
 
-func (cfg *Config) Unmarshal() error {
-	if err := viper.Unmarshal(&cfg); err != nil {
+func (cfg *Config) Save(path string) error {
+	data, err := toml.Marshal(cfg)
+	if err != nil {
+		return fmt.Errorf("could not marshal config: %w", err)
+	}
+
+	if err := os.WriteFile(path, data, 0o644); err != nil {
+		return fmt.Errorf("could not write config file: %w", err)
+	}
+
+	return nil
+}
+
+func (cfg *Config) SetValues(appDir, path, userToken string) error {
+	if path != "" {
+		cfg.LogPath = path
+	}
+	if userToken != "" {
+		cfg.UserToken = userToken
+	}
+
+	configFile, err := GetConfigFilePath(appDir)
+	if err != nil {
 		return err
 	}
 
-	return nil
-}
-
-func (cfg *Config) SetValues(logPath, userToken string) error {
-	if logPath != "" {
-		viper.Set("LogPath", logPath)
-	}
-	if userToken != "" {
-		viper.Set("UserToken", userToken)
-	}
-
-	err := viper.WriteConfig()
-	if err != nil {
-		return fmt.Errorf("could not write config: %w", err)
-	}
-
-	err = cfg.Unmarshal()
-	if err != nil {
-		return fmt.Errorf("could not unmarshal config after write: %w", err)
-	}
-
-	return nil
+	return cfg.Save(configFile)
 }
 
 func (cfg *Config) AbortIfNoUserToken() {
@@ -88,32 +88,40 @@ func (cfg *Config) AbortIfNoUserToken() {
 	}
 
 	const msg = `
-Missing UserToken!
-Get your UserToken at: https://dps.report/getUserToken
-Set your token with: arclog config set -t <your_token>
-`
+	Missing UserToken!
+	Get your UserToken at: https://dps.report/getUserToken
+	Set your token with: arclog config set -t <your_token>
+	`
 
 	fmt.Fprint(os.Stderr, msg)
 	os.Exit(1)
 }
 
 func (cfg *Config) GetSettingsString() string {
-	settings := viper.AllSettings()
 	var sb strings.Builder
-	genSettingString(settings, 0, &sb)
+
+	type field struct {
+		name  string
+		value any
+	}
+
+	fields := []field{
+		{"LogPath", cfg.LogPath},
+		{"UserToken", cfg.UserToken},
+	}
+
+	for _, f := range fields {
+		fmt.Fprintf(&sb, "  - %s = %v\n", f.name, f.value)
+	}
+
 	return sb.String()
 }
 
-func genSettingString(m map[string]any, indent int, sb *strings.Builder) {
-	prefix := strings.Repeat("  ", indent)
-
-	for k, v := range m {
-		switch val := v.(type) {
-		case map[string]any:
-			fmt.Fprintf(sb, "%s- %s:\n", prefix, k)
-			genSettingString(val, indent+1, sb)
-		default:
-			fmt.Fprintf(sb, "%s- %s = %v\n", prefix, k, val)
-		}
+func GetConfigFilePath(appDir string) (string, error) {
+	appDirPath, err := GetAppDirPath(appDir)
+	if err != nil {
+		return "", fmt.Errorf("could not get app dir path: %w", err)
 	}
+
+	return filepath.Join(appDirPath, "config.toml"), nil
 }

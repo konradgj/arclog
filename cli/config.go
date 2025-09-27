@@ -22,7 +22,7 @@ func (c ConfigSetCmd) Run(ctx *Context) error {
 		return fmt.Errorf("must provide at least one of --logpath or --usertoken")
 	}
 
-	ctx.Config.SetValues(c.Logpath, c.Usertoken)
+	ctx.Config.SetValues(appDir, c.Logpath, c.Usertoken)
 	fmt.Println("Updated config:")
 	settings := ctx.Config.GetSettingsString()
 	fmt.Println(settings)

@@ -40,7 +40,7 @@ func TestConfig_SetValues(t *testing.T) {
 
 	newLogPath := filepath.Join(tmpDir, "logs")
 	newToken := "mytoken123"
-	if err := cfg.SetValues(newLogPath, newToken); err != nil {
+	if err := cfg.SetValues(tmpDir, newLogPath, newToken); err != nil {
 		t.Fatalf("SetValues failed: %v", err)
 	}
 
@@ -62,7 +62,7 @@ func TestConfig_GetSettingsString(t *testing.T) {
 		t.Fatalf("InitConfig failed: %v", err)
 	}
 
-	cfg.SetValues("somepath", "sometoken")
+	cfg.SetValues(tmpDir, "somepath", "sometoken")
 	output := cfg.GetSettingsString()
 
 	if !strings.Contains(output, "logpath = somepath") || !strings.Contains(output, "usertoken = sometoken") {
