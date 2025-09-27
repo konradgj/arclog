@@ -64,7 +64,7 @@ func (ctx *Context) NewWatcher(jobs chan<- UploadJob, cancelCtx context.Context)
 				}
 
 				ctx.Logger.Debug("new event", event.Name)
-				upload, err := ctx.St.Queries.CreateUpload(context.Background(), database.CreateUploadParams{
+				cbtlog, err := ctx.St.Queries.CreateCbtlog(context.Background(), database.CreateCbtlogParams{
 					FilePath: event.Name,
 				})
 				if err != nil {
@@ -72,11 +72,11 @@ func (ctx *Context) NewWatcher(jobs chan<- UploadJob, cancelCtx context.Context)
 					continue
 				}
 
-				ctx.Logger.Info("added upload to db", "file_path", upload.FilePath)
+				ctx.Logger.Info("added upload to db", "file_path", cbtlog.FilePath)
 
 				if jobs != nil {
-					jobs <- UploadJob{Upload: upload}
-					ctx.Logger.Debug("enqueued upload job", "file", upload.FilePath)
+					jobs <- UploadJob{Cbtlog: cbtlog}
+					ctx.Logger.Debug("enqueued upload job", "file", cbtlog.FilePath)
 				}
 
 			case err, ok := <-watcher.Errors:

@@ -9,7 +9,7 @@ import (
 )
 
 type UploadJob struct {
-	Upload database.Upload
+	Cbtlog database.Cbtlog
 }
 
 func (ctx *Context) StartWorkerPool(numWorkers int, anonymous, detailedwvw bool) (chan<- UploadJob, *sync.WaitGroup) {
@@ -22,8 +22,8 @@ func (ctx *Context) StartWorkerPool(numWorkers int, anonymous, detailedwvw bool)
 		go func(id int) {
 			defer wg.Done()
 			for job := range jobs {
-				ctx.Logger.Debug("worker started", "worker", id, "file", job.Upload.FilePath)
-				ctx.UploadLog(job, anonymous, detailedwvw)
+				ctx.Logger.Debug("worker started", "worker", id, "file", job.Cbtlog.FilePath)
+				ctx.UploadLog(job.Cbtlog, anonymous, detailedwvw)
 			}
 		}(i)
 	}
@@ -32,13 +32,13 @@ func (ctx *Context) StartWorkerPool(numWorkers int, anonymous, detailedwvw bool)
 }
 
 func (ctx *Context) EnqueuePending(jobs chan<- UploadJob) {
-	uploads, err := ctx.St.Queries.ListUploadsByStatus(context.Background(), string(db.StatusPending))
+	uploads, err := ctx.St.Queries.ListCbtlogsByUploadStatus(context.Background(), string(db.StatusPending))
 	if err != nil {
 		ctx.Logger.Error("could not list pending uploads", "err", err)
 		return
 	}
 
 	for _, u := range uploads {
-		jobs <- UploadJob{Upload: u}
+		jobs <- UploadJob{Cbtlog: u}
 	}
 }

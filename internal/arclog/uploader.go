@@ -51,17 +51,17 @@ func (ctx *Context) RunWatchUploads(anonymous, detailedwvw bool, cancelCtx conte
 	fmt.Println("All workers shut down")
 }
 
-func (ctx *Context) UploadLog(job UploadJob, anonymous, detailedwvw bool) {
-	err := ctx.St.Queries.UpdateUploadStatus(context.Background(), database.UpdateUploadStatusParams{
-		Status:       string(db.StatusUploading),
-		StatusReason: string(db.ReasonUploading),
-		ID:           job.Upload.ID,
+func (ctx *Context) UploadLog(cbtlog database.Cbtlog, anonymous, detailedwvw bool) {
+	err := ctx.St.Queries.UpdateCtblogUploadStatus(context.Background(), database.UpdateCtblogUploadStatusParams{
+		UploadStatus:       string(db.StatusUploading),
+		UploadStatusReason: string(db.ReasonUploading),
+		ID:                 cbtlog.ID,
 	})
 	if err != nil {
-		ctx.Logger.Error("error updating upload", "file", job.Upload.FilePath, "err", err)
+		ctx.Logger.Error("error updating upload", "file", cbtlog.FilePath, "err", err)
 		return
 	}
-	ctx.Logger.Debug("updated upload in db", "upload", job.Upload.FilePath, "status", db.StatusUploading)
+	ctx.Logger.Debug("updated upload in db", "upload", cbtlog.FilePath, "status", db.StatusUploading)
 
 	opts := dpsreport.UploadContentOptions{
 		UserToken:   ctx.Config.UserToken,
@@ -70,17 +70,17 @@ func (ctx *Context) UploadLog(job UploadJob, anonymous, detailedwvw bool) {
 	}
 
 	ctx.RateLimiter.Wait()
-	resp, err := ctx.DpsReportClient.UploadContent(job.Upload.FilePath, opts)
+	resp, err := ctx.DpsReportClient.UploadContent(cbtlog.FilePath, opts)
 	if err != nil && resp == nil {
 		ctx.Logger.Error("could not upload", "err", err)
 
-		err = ctx.St.Queries.UpdateUploadStatus(context.Background(), database.UpdateUploadStatusParams{
-			Status:       string(db.StatusFailed),
-			StatusReason: string(db.ReasonHttp),
-			ID:           job.Upload.ID,
+		err = ctx.St.Queries.UpdateCtblogUploadStatus(context.Background(), database.UpdateCtblogUploadStatusParams{
+			UploadStatus:       string(db.StatusFailed),
+			UploadStatusReason: string(db.ReasonHttp),
+			ID:                 cbtlog.ID,
 		})
 		if err != nil {
-			ctx.Logger.Error("error updating upload in db", "file", job.Upload.FilePath, "err", err)
+			ctx.Logger.Error("error updating upload in db", "file", cbtlog.FilePath, "err", err)
 			return
 		}
 	}
@@ -88,16 +88,16 @@ func (ctx *Context) UploadLog(job UploadJob, anonymous, detailedwvw bool) {
 		ctx.Logger.Error("error decoding response", "err", err)
 	}
 
-	err = ctx.St.Queries.UpdateUploadUrl(context.Background(), database.UpdateUploadUrlParams{
-		Status:       string(db.StatusUploaded),
-		StatusReason: string(db.ReasonSuccess),
-		Url:          db.WrapNullStr(resp.Permalink),
-		ID:           job.Upload.ID,
+	err = ctx.St.Queries.UpdateCbtlogUrl(context.Background(), database.UpdateCbtlogUrlParams{
+		UploadStatus:       string(db.StatusUploaded),
+		UploadStatusReason: string(db.ReasonSuccess),
+		Url:                db.WrapNullStr(resp.Permalink),
+		ID:                 cbtlog.ID,
 	})
 	if err != nil {
-		ctx.Logger.Error("error updating upload", "file", job.Upload.ID, "err", err)
+		ctx.Logger.Error("error updating upload", "file", cbtlog.ID, "err", err)
 		return
 	}
 
-	ctx.Logger.Info("successfully uploaded to arcdps", "file", job.Upload.FilePath)
+	ctx.Logger.Info("successfully uploaded to arcdps", "file", cbtlog.FilePath)
 }

@@ -1,14 +1,14 @@
 -- +goose Up
-CREATE TABLE uploads (
+CREATE TABLE cbtlogs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     file_path TEXT NOT NULL UNIQUE,
     url TEXT UNIQUE,
-    status TEXT NOT NULL DEFAULT 'pending',
-    status_reason TEXT NOT NULL DEFAULT 'create',
+    upload_status TEXT NOT NULL DEFAULT 'pending',
+    upload_status_reason TEXT NOT NULL DEFAULT 'create',
     active INTEGER NOT NULL DEFAULT 1,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- +goose Down
-DROP TABLE uploads;
+DROP TABLE cbtlogs;

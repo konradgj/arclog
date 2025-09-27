@@ -9,13 +9,13 @@ import (
 	"time"
 )
 
-type Upload struct {
-	ID           int64
-	FilePath     string
-	Url          sql.NullString
-	Status       string
-	StatusReason string
-	Active       int64
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
+type Cbtlog struct {
+	ID                 int64
+	FilePath           string
+	Url                sql.NullString
+	UploadStatus       string
+	UploadStatusReason string
+	Active             int64
+	CreatedAt          time.Time
+	UpdatedAt          time.Time
 }
