@@ -9,8 +9,8 @@ arc-dps log uploader
   - [x] write to uploads on file
   - [x] workers
   - [x] concurrent workers
-- [ ] http client
-  - [ ] handle ratelimit
+- [x] http client
+  - [x] handle ratelimit
   - [x] post to dps.report
   - [x] handle post options 
 - [ ] upload command
