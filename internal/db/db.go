@@ -18,13 +18,13 @@ type Store struct {
 	DB      *sql.DB
 }
 
-func (s *Store) SetupDb(dbPath string, verbose bool) error {
+func (s *Store) SetupDb(dbPath string, debug bool) error {
 	db, err := initDb(dbPath)
 	if err != nil {
 		return fmt.Errorf("could not init db: %w", err)
 	}
 
-	if !verbose {
+	if !debug {
 		goose.SetLogger(goose.NopLogger())
 	}
 

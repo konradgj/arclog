@@ -8,21 +8,20 @@ import (
 
 	"github.com/alecthomas/kong"
 	"github.com/konradgj/arclog/internal/arclog"
-	"github.com/konradgj/arclog/internal/logger"
+	"go.uber.org/zap"
 )
 
 const appDir = "arclog"
 
 type Context struct {
 	Debug     bool
-	Verbose   bool
 	CancelCtx context.Context
+	Logger    *zap.SugaredLogger
 	*arclog.Context
 }
 
 var cli struct {
-	Debug   bool `help:"Enable debug mode."`
-	Verbose bool `help:"Enable verbose output."`
+	Debug bool `help:"Enable debug mode."`
 
 	Config ConfigCmd `cmd:"" help:"Manage config."`
 	Watch  WatchCmd  `cmd:"" help:"Watch log directory for new logs."`
@@ -35,16 +34,25 @@ func Execute() {
 
 	ctx := kong.Parse(&cli)
 
-	logger.Initlogger(cli.Verbose)
-	arclogContext, err := arclog.InitContext(appDir, cli.Verbose)
+	var logger *zap.Logger
+	if cli.Debug {
+		logger, _ = zap.NewDevelopment()
+		logger.Debug("Using development level logging")
+	} else {
+		logger, _ = zap.NewProduction()
+	}
+	defer logger.Sync()
+	sugar := logger.Sugar()
+
+	arclogContext, err := arclog.InitContext(sugar, appDir, cli.Debug)
 	if err != nil {
-		logger.Error("could not initialize context", "err", err)
+		sugar.Error("could not initialize context", "err", err)
 	}
 
 	cliContext := &Context{
-		Verbose:   cli.Verbose,
 		Debug:     cli.Debug,
 		CancelCtx: cancelCtx,
+		Logger:    sugar,
 		Context:   arclogContext,
 	}
 

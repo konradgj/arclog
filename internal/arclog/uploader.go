@@ -9,7 +9,6 @@ import (
 	"github.com/konradgj/arclog/internal/database"
 	"github.com/konradgj/arclog/internal/db"
 	"github.com/konradgj/arclog/internal/dpsreport"
-	"github.com/konradgj/arclog/internal/logger"
 )
 
 func (ctx *Context) RunPendingUploads(anonymous, detailedwvw bool, cancelCtx context.Context) {
@@ -19,7 +18,7 @@ func (ctx *Context) RunPendingUploads(anonymous, detailedwvw bool, cancelCtx con
 	close(jobs)
 
 	wg.Wait()
-	logger.Info("all workers shut down")
+	ctx.Logger.Debug("All workers shut down")
 }
 
 func (ctx *Context) RunWatchUploads(anonymous, detailedwvw bool, cancelCtx context.Context) {
@@ -36,19 +35,20 @@ func (ctx *Context) RunWatchUploads(anonymous, detailedwvw bool, cancelCtx conte
 
 	err := ctx.NewWatcher(jobs, cancelCtx)
 	if err != nil {
-		logger.Error("could not start watcher: %w", err)
+		ctx.Logger.Error("could not start watcher: %w", err)
 		os.Exit(1)
 	}
 	fmt.Printf("Started watching dir: %s\n", ctx.Config.LogPath)
 
 	<-cancelCtx.Done()
-	logger.Info("shutting down...")
+	fmt.Println("shutting down...")
 	if ctx.Watcher != nil {
 		ctx.Watcher.Close()
 	}
 	close(jobs)
 	wg.Wait()
-	logger.Info("all workers shut down")
+	ctx.Logger.Debug("all workers shut down")
+	fmt.Println("All workers shut down")
 }
 
 func (ctx *Context) UploadLog(job UploadJob, anonymous, detailedwvw bool) {
@@ -58,10 +58,10 @@ func (ctx *Context) UploadLog(job UploadJob, anonymous, detailedwvw bool) {
 		ID:           job.Upload.ID,
 	})
 	if err != nil {
-		logger.Error("error updating upload", "file", job.Upload.FilePath, "err", err)
+		ctx.Logger.Error("error updating upload", "file", job.Upload.FilePath, "err", err)
 		return
 	}
-	logger.Debug("updated upload in db", "upload", job.Upload.FilePath, "status", db.StatusUploading)
+	ctx.Logger.Debug("updated upload in db", "upload", job.Upload.FilePath, "status", db.StatusUploading)
 
 	opts := dpsreport.UploadContentOptions{
 		UserToken:   ctx.Config.UserToken,
@@ -72,7 +72,7 @@ func (ctx *Context) UploadLog(job UploadJob, anonymous, detailedwvw bool) {
 	ctx.RateLimiter.Wait()
 	resp, err := ctx.DpsReportClient.UploadContent(job.Upload.FilePath, opts)
 	if err != nil && resp == nil {
-		logger.Error("could not upload", "err", err)
+		ctx.Logger.Error("could not upload", "err", err)
 
 		err = ctx.St.Queries.UpdateUploadStatus(context.Background(), database.UpdateUploadStatusParams{
 			Status:       string(db.StatusFailed),
@@ -80,12 +80,12 @@ func (ctx *Context) UploadLog(job UploadJob, anonymous, detailedwvw bool) {
 			ID:           job.Upload.ID,
 		})
 		if err != nil {
-			logger.Error("error updating upload in db", "file", job.Upload.FilePath, "err", err)
+			ctx.Logger.Error("error updating upload in db", "file", job.Upload.FilePath, "err", err)
 			return
 		}
 	}
 	if err != nil && resp != nil {
-		logger.Error("error decoding response", "err", err)
+		ctx.Logger.Error("error decoding response", "err", err)
 	}
 
 	err = ctx.St.Queries.UpdateUploadUrl(context.Background(), database.UpdateUploadUrlParams{
@@ -95,9 +95,9 @@ func (ctx *Context) UploadLog(job UploadJob, anonymous, detailedwvw bool) {
 		ID:           job.Upload.ID,
 	})
 	if err != nil {
-		logger.Error("error updating upload", "file", job.Upload.ID, "err", err)
+		ctx.Logger.Error("error updating upload", "file", job.Upload.ID, "err", err)
 		return
 	}
 
-	logger.Info("successfully uploaded to arcdps", "file", job.Upload.FilePath)
+	ctx.Logger.Info("successfully uploaded to arcdps", "file", job.Upload.FilePath)
 }

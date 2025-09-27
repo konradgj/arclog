@@ -11,20 +11,19 @@ import (
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/konradgj/arclog/internal/database"
-	"github.com/konradgj/arclog/internal/logger"
 )
 
 func (ctx *Context) RunWatch(cancelCtx context.Context) {
 	err := ctx.NewWatcher(nil, cancelCtx)
 	if err != nil {
-		logger.Error("could not start watcher", "err", err)
+		ctx.Logger.Error("could not start watcher", "err", err)
 		os.Exit(1)
 	}
 	defer ctx.Watcher.Close()
 	fmt.Printf("Started watching dir: %s\n", ctx.Config.LogPath)
 
 	<-cancelCtx.Done()
-	logger.Info("shutting down...")
+	fmt.Println("\nshutting down...")
 	if ctx.Watcher != nil {
 		ctx.Watcher.Close()
 	}
@@ -52,7 +51,7 @@ func (ctx *Context) NewWatcher(jobs chan<- UploadJob, cancelCtx context.Context)
 
 				st, err := os.Stat(event.Name)
 				if err != nil {
-					logger.Error("error in filepath", "err", err)
+					ctx.Logger.Error("error in filepath", "err", err)
 					continue
 				}
 
@@ -64,39 +63,34 @@ func (ctx *Context) NewWatcher(jobs chan<- UploadJob, cancelCtx context.Context)
 					continue
 				}
 
-				logger.Debug("new event", "event", event.Name)
+				ctx.Logger.Debug("new event", event.Name)
 				upload, err := ctx.St.Queries.CreateUpload(context.Background(), database.CreateUploadParams{
 					FilePath: event.Name,
 				})
 				if err != nil {
-					logger.Error("error adding upload to db", "err", err)
+					ctx.Logger.Error("error adding upload to db", "err", err)
 					continue
 				}
 
-				logger.Info("added upload to db", "file_path", upload.FilePath)
+				ctx.Logger.Info("added upload to db", "file_path", upload.FilePath)
 
 				if jobs != nil {
 					jobs <- UploadJob{Upload: upload}
-					logger.Debug("enqueued upload job", "file", upload.FilePath)
+					ctx.Logger.Debug("enqueued upload job", "file", upload.FilePath)
 				}
 
 			case err, ok := <-watcher.Errors:
 				if !ok {
-					logger.Warn("watcher errors channel closed")
+					ctx.Logger.Warn("watcher errors channel closed")
 					return
 				}
 				if err != nil {
-					logger.Error("watcher error", "err", err)
+					ctx.Logger.Error("watcher error", "err", err)
 					return
 				}
 			}
 		}
 	}()
-
-	// err = ctx.Config.Unmarshal()
-	// if err != nil {
-	// 	return fmt.Errorf("could not umarshal config: %w", err)
-	// }
 
 	err = watcher.Add(ctx.Config.LogPath)
 	if err != nil {

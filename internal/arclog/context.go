@@ -9,6 +9,7 @@ import (
 	"github.com/fsnotify/fsnotify"
 	"github.com/konradgj/arclog/internal/db"
 	"github.com/konradgj/arclog/internal/dpsreport"
+	"go.uber.org/zap"
 )
 
 var osUserConfigDir = os.UserConfigDir
@@ -16,28 +17,30 @@ var osUserConfigDir = os.UserConfigDir
 type Context struct {
 	St              *db.Store
 	Config          *Config
+	Logger          *zap.SugaredLogger
 	Watcher         *fsnotify.Watcher
 	DpsReportClient *dpsreport.Client
 	RateLimiter     *RateLimiter
 }
 
-func NewContext(st *db.Store, cfg *Config, dpsClient *dpsreport.Client, rl *RateLimiter) *Context {
+func NewContext(st *db.Store, cfg *Config, logger *zap.SugaredLogger, dpsClient *dpsreport.Client, rl *RateLimiter) *Context {
 	return &Context{
 		St:              st,
 		Config:          cfg,
+		Logger:          logger,
 		DpsReportClient: dpsClient,
 		RateLimiter:     rl,
 	}
 }
 
-func InitContext(appDir string, verbose bool) (*Context, error) {
+func InitContext(logger *zap.SugaredLogger, appDir string, debug bool) (*Context, error) {
 	st := &db.Store{}
 	dbPath, err := GetDbPath(appDir)
 	if err != nil {
 		return nil, fmt.Errorf("could not get db path: %w", err)
 	}
 
-	err = st.SetupDb(dbPath, verbose)
+	err = st.SetupDb(dbPath, debug)
 	if err != nil {
 		return nil, fmt.Errorf("could not setup db: %w", err)
 	}
@@ -52,7 +55,7 @@ func InitContext(appDir string, verbose bool) (*Context, error) {
 	dpsClient := dpsreport.NewClient(5 * time.Minute)
 	rl := NewRateLimiter(25, time.Minute)
 
-	return NewContext(st, cfg, dpsClient, rl), nil
+	return NewContext(st, cfg, logger, dpsClient, rl), nil
 }
 
 func GetAppDirPath(appDir string) (string, error) {
