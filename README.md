@@ -14,12 +14,20 @@ arc-dps log uploader
   - [x] post to dps.report
   - [x] handle post options 
 - [ ] upload command
-  - [ ] upload -dir (upload from dir maybe recursive?)
+  - [x] no flag - uploads all pending logs
   - [x] upload -watch (move watch command here)
-- [ ] analisis commands (list?)
-  - [ ] list uploads per status
-  - [ ] list uploaded with link to follow
-  - [ ] list if log succes or not?
+  - [ ] -dir (upload only logs in dir)
+  - [ ] -file (upload only given log)
+- [ ] log command
+  - [ ] add (add logs to db)
+    - [ ] no flag - adds all logs
+    - [ ] -file (add only file)
+    - [ ] -dir (add only from dir)
+  - [ ] list (list logs in db)
+    - [ ] -f - filter opts (pending, uploaded, failed, skipped)
+  - [ ] clear (deactivate logs active = 0)
+    - [ ] -d (hard delete)
+- [ ] add a way to exclude logs (example: dont post wvw logs)
 - [ ] wvw live info
   - [ ] would need to parse evtc file
   - [ ] enemy count?
