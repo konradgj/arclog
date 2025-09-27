@@ -36,7 +36,11 @@ func InitContext(appDir string, verbose bool) (*Context, error) {
 	if err != nil {
 		return nil, fmt.Errorf("could not get db path: %w", err)
 	}
-	st.SetupDb(dbPath, verbose)
+
+	err = st.SetupDb(dbPath, verbose)
+	if err != nil {
+		return nil, fmt.Errorf("could not setup db: %w", err)
+	}
 
 	cfg := &Config{}
 	fileUsed, err := cfg.InitConfig(appDir)

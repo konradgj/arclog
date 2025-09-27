@@ -5,7 +5,7 @@ package cmd
 
 import (
 	"context"
-	"os"
+	"log"
 
 	"github.com/konradgj/arclog/cmd/config"
 	"github.com/konradgj/arclog/cmd/upload"
@@ -39,8 +39,7 @@ func NewRootCmd(rootCtx context.Context) *cobra.Command {
 
 	ctx, err := arclog.InitContext(appDir, verbose)
 	if err != nil {
-		logger.Error("could not init config", "err", err)
-		os.Exit(1)
+		log.Fatalf("could not init context: %v", err)
 	}
 
 	rootCmd.AddCommand(
