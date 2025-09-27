@@ -2,25 +2,26 @@ package db
 
 import (
 	"database/sql"
+	"embed"
 	"fmt"
-	"os"
 
 	"github.com/konradgj/arclog/internal/database"
-	"github.com/konradgj/arclog/internal/logger"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/pressly/goose/v3"
 )
+
+//go:embed schema/*.sql
+var embedMigrations embed.FS
 
 type Store struct {
 	Queries *database.Queries
 	DB      *sql.DB
 }
 
-func (s *Store) SetupDb(dbPath string, verbose bool) {
+func (s *Store) SetupDb(dbPath string, verbose bool) error {
 	db, err := initDb(dbPath)
 	if err != nil {
-		logger.Error("could not init db", "err", err)
-		os.Exit(1)
+		return fmt.Errorf("could not init db: %w", err)
 	}
 
 	if !verbose {
@@ -28,12 +29,12 @@ func (s *Store) SetupDb(dbPath string, verbose bool) {
 	}
 
 	if err := migrateDb(db); err != nil {
-		logger.Error("could not migrate db", "err", err)
-		os.Exit(1)
+		return fmt.Errorf("could not migrate db: %w", err)
 	}
 
 	s.DB = db
 	s.Queries = database.New(db)
+	return nil
 }
 
 func WrapNullStr(s string) sql.NullString {
@@ -44,11 +45,13 @@ func WrapNullStr(s string) sql.NullString {
 }
 
 func migrateDb(db *sql.DB) error {
+	goose.SetBaseFS(embedMigrations)
+
 	if err := goose.SetDialect("sqlite3"); err != nil {
 		return fmt.Errorf("could not set sql dialect: %w", err)
 	}
 
-	if err := goose.Up(db, "sql/schema"); err != nil {
+	if err := goose.Up(db, "schema"); err != nil {
 		return fmt.Errorf("could not migrate db: %w", err)
 	}
 
