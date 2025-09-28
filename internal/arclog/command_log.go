@@ -2,9 +2,13 @@ package arclog
 
 import (
 	"fmt"
+	"os"
+	"text/tabwriter"
+
+	"github.com/konradgj/arclog/internal/db"
 )
 
-func (ctx *Context) AddLogsToDb(paths []string) {
+func (ctx *Context) RunAddLogsToDb(paths []string) {
 	var logPaths []string
 	for _, path := range paths {
 		ps, err := GetAllFilePaths(path)
@@ -26,4 +30,36 @@ func (ctx *Context) AddLogsToDb(paths []string) {
 			ctx.Logger.Errorw("could not add log to db", "err", err)
 		}
 	}
+}
+
+func (ctx *Context) RunListCbtlogsByFilter(uploadStatus, relativePath string) {
+	cbtlogs, err := ctx.listCbtlogsByFilters(uploadStatus, relativePath)
+	if err != nil {
+		ctx.Logger.Errorw("could not list logs", "err", err)
+		return
+	}
+
+	if len(cbtlogs) == 0 {
+		fmt.Println("No logs found matching current filters...")
+		return
+	}
+
+	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
+	fmt.Fprintln(w, "FILENAME\tRELATIVE_PATH\tURL\tUPLOAD_STATUS\tUPLOAD_STATUS_REASON")
+
+	for _, row := range cbtlogs {
+		relPath := db.PrintNullStr(row.RelativePath)
+		url := db.PrintNullStr(row.Url)
+		fmt.Fprintf(
+			w,
+			"%s\t%s\t%s\t%s\t%s\n",
+			row.Filename,
+			relPath,
+			url,
+			row.UploadStatus,
+			row.UploadStatusReason,
+		)
+	}
+
+	w.Flush()
 }

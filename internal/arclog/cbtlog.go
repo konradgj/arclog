@@ -18,7 +18,7 @@ func (ctx *Context) addCbtlogToDb(logPath string) (*database.Cbtlog, error) {
 
 	cbtlog, err = ctx.St.Queries.GetCbtlogByFileName(context.Background(), name)
 	if err == nil {
-		ctx.Logger.Infow("File already exists in db", "name", name)
+		ctx.Logger.Infow("File already exists in db", "name", cbtlog.Filename, "path", cbtlog.RelativePath.String)
 		return &cbtlog, nil
 	}
 
@@ -30,7 +30,7 @@ func (ctx *Context) addCbtlogToDb(logPath string) (*database.Cbtlog, error) {
 		return nil, fmt.Errorf("could not add file %s to db: %w", name, err)
 	}
 
-	ctx.Logger.Infow("Added file to db", "name", name)
+	ctx.Logger.Infow("Added file to db", "name", cbtlog.Filename, "path", cbtlog.RelativePath.String)
 	return &cbtlog, nil
 }
 
@@ -62,6 +62,18 @@ func (ctx *Context) getPendingCbtlogs() ([]database.Cbtlog, error) {
 	cbtlogs, err := ctx.St.Queries.ListCbtlogsByUploadStatus(context.Background(), string(db.StatusPending))
 	if err != nil {
 		return nil, fmt.Errorf("could not list pending uploads: %w", err)
+	}
+
+	return cbtlogs, nil
+}
+
+func (ctx *Context) listCbtlogsByFilters(uploadStatus, relativePath string) ([]database.Cbtlog, error) {
+	cbtlogs, err := ctx.St.Queries.ListCbtlogsByFilters(context.Background(), database.ListCbtlogsByFiltersParams{
+		UploadStatus: db.WrapNullStr(uploadStatus),
+		RelativePath: db.WrapNullStr(relativePath),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("could not list logs: %w", err)
 	}
 
 	return cbtlogs, nil

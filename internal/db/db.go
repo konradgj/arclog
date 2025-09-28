@@ -44,6 +44,13 @@ func WrapNullStr(s string) sql.NullString {
 	}
 }
 
+func PrintNullStr(s sql.NullString) string {
+	if !s.Valid {
+		return "-"
+	}
+	return s.String
+}
+
 func migrateDb(db *sql.DB) error {
 	goose.SetBaseFS(embedMigrations)
 

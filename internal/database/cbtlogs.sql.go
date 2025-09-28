@@ -60,6 +60,58 @@ func (q *Queries) GetCbtlogByFileName(ctx context.Context, filename string) (Cbt
 	return i, err
 }
 
+const listCbtlogsByFilters = `-- name: ListCbtlogsByFilters :many
+SELECT id, filename, relative_path, url, upload_status, upload_status_reason, active, created_at, updated_at
+FROM cbtlogs
+WHERE (
+        upload_status = ?1
+        OR ?1 IS NULL
+    )
+    AND (
+        relative_path = ?2
+        OR ?2 IS NULL
+    )
+ORDER BY created_at DESC
+`
+
+type ListCbtlogsByFiltersParams struct {
+	UploadStatus sql.NullString
+	RelativePath sql.NullString
+}
+
+func (q *Queries) ListCbtlogsByFilters(ctx context.Context, arg ListCbtlogsByFiltersParams) ([]Cbtlog, error) {
+	rows, err := q.db.QueryContext(ctx, listCbtlogsByFilters, arg.UploadStatus, arg.RelativePath)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Cbtlog
+	for rows.Next() {
+		var i Cbtlog
+		if err := rows.Scan(
+			&i.ID,
+			&i.Filename,
+			&i.RelativePath,
+			&i.Url,
+			&i.UploadStatus,
+			&i.UploadStatusReason,
+			&i.Active,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listCbtlogsByUploadStatus = `-- name: ListCbtlogsByUploadStatus :many
 SELECT id, filename, relative_path, url, upload_status, upload_status_reason, active, created_at, updated_at
 FROM cbtlogs

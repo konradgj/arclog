@@ -14,9 +14,6 @@ type ConfigSetCmd struct {
 	Usertoken string `short:"t" help:"User token."`
 }
 
-type ConfigShowCmd struct {
-}
-
 func (c ConfigSetCmd) Run(ctx *Context) error {
 	if c.Logpath == "" && c.Usertoken == "" {
 		return fmt.Errorf("must provide at least one of --logpath or --usertoken")
@@ -27,6 +24,9 @@ func (c ConfigSetCmd) Run(ctx *Context) error {
 	settings := ctx.Config.GetSettingsString()
 	fmt.Println(settings)
 	return nil
+}
+
+type ConfigShowCmd struct {
 }
 
 func (c ConfigShowCmd) Run(ctx *Context) error {

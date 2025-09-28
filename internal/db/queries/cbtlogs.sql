@@ -29,5 +29,18 @@ WHERE
     upload_status = ?
 ORDER BY created_at DESC;
 
+-- name: ListCbtlogsByFilters :many
+SELECT *
+FROM cbtlogs
+WHERE (
+        upload_status = sqlc.narg ('upload_status')
+        OR sqlc.narg ('upload_status') IS NULL
+    )
+    AND (
+        relative_path = sqlc.narg ('relative_path')
+        OR sqlc.narg ('relative_path') IS NULL
+    )
+ORDER BY created_at DESC;
+
 -- name: GetCbtlogByFileName :one
 SELECT * FROM cbtlogs WHERE filename = ?;

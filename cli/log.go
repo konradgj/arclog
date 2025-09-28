@@ -1,7 +1,8 @@
 package cli
 
 type LogCmd struct {
-	Add LogAddCmd `cmd:"" help:"Add logs to db."`
+	Add  LogAddCmd  `cmd:"" help:"Add logs to db."`
+	List LogListCmd `cmd:"" help:"List logs added to db."`
 }
 
 type LogAddCmd struct {
@@ -9,6 +10,16 @@ type LogAddCmd struct {
 }
 
 func (l LogAddCmd) Run(ctx *Context) error {
-	ctx.AddLogsToDb(l.Paths)
+	ctx.RunAddLogsToDb(l.Paths)
+	return nil
+}
+
+type LogListCmd struct {
+	Uploadstatus string `short:"s" default:"" enum:",pending,uploading,uploaded,failed,skipped" help:"Filter by upload status."`
+	Relativepath string `short:"p" help:"Filter by relative path."`
+}
+
+func (l LogListCmd) Run(ctx *Context) error {
+	ctx.RunListCbtlogsByFilter(l.Uploadstatus, l.Relativepath)
 	return nil
 }
