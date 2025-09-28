@@ -9,6 +9,8 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+
+	"github.com/konradgj/arclog/internal/db"
 )
 
 const uploadContentEndpoint = "uploadContent"
@@ -20,10 +22,12 @@ type UploadContentOptions struct {
 }
 
 func (c *Client) UploadContent(filePath string, opts UploadContentOptions) (*UploadResponse, error) {
-
 	file, err := os.Open(filePath)
 	if err != nil {
-		return nil, fmt.Errorf("could not open file: %w", err)
+		if os.IsNotExist(err) {
+			return nil, fmt.Errorf("%w: %v", db.ErrFileMissing, err)
+		}
+		return nil, fmt.Errorf("%w: %v", db.ErrInternal, err)
 	}
 	defer file.Close()
 
@@ -32,10 +36,10 @@ func (c *Client) UploadContent(filePath string, opts UploadContentOptions) (*Upl
 
 	part, err := writer.CreateFormFile("file", filepath.Base(filePath))
 	if err != nil {
-		return nil, fmt.Errorf("could not create form file: %w", err)
+		return nil, fmt.Errorf("%w: %v", db.ErrInternal, err)
 	}
 	if _, err := io.Copy(part, file); err != nil {
-		return nil, fmt.Errorf("could not copy file: %w", err)
+		return nil, fmt.Errorf("%w: %v", db.ErrInternal, err)
 	}
 
 	_ = writer.WriteField("json", "1")
@@ -51,34 +55,34 @@ func (c *Client) UploadContent(filePath string, opts UploadContentOptions) (*Upl
 	}
 
 	if err := writer.Close(); err != nil {
-		return nil, fmt.Errorf("could not close writer: %w", err)
+		return nil, fmt.Errorf("%w: %v", db.ErrInternal, err)
 	}
 
 	url := baseUrl + uploadContentEndpoint
 	req, err := http.NewRequest("POST", url, &body)
 	if err != nil {
-		return nil, fmt.Errorf("could not create request: %w", err)
+		return nil, fmt.Errorf("%w: %v", db.ErrInternal, err)
 	}
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 
 	resp, err := c.Client.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("upload request failed: %w", err)
+		return nil, fmt.Errorf("%w: %v", db.ErrHttp, err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		b, _ := io.ReadAll(resp.Body)
-		return nil, fmt.Errorf("unexpected status %d: %s", resp.StatusCode, string(b))
+		return nil, fmt.Errorf("%w: unexpected status %d: %s", db.ErrHttp, resp.StatusCode, string(b))
 	}
 
 	var uploadResponse UploadResponse
 	if err := json.NewDecoder(resp.Body).Decode(&uploadResponse); err != nil {
-		return &uploadResponse, fmt.Errorf("could not decode response: %w", err)
+		return &uploadResponse, fmt.Errorf("%w: %v", db.ErrDecode, err)
 	}
 
 	if uploadResponse.Error != nil {
-		return &uploadResponse, fmt.Errorf("server error: %s", *uploadResponse.Error)
+		return &uploadResponse, fmt.Errorf("%w: %s", db.ErrServerError, *uploadResponse.Error)
 	}
 
 	return &uploadResponse, nil

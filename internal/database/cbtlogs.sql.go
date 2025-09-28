@@ -39,6 +39,27 @@ func (q *Queries) CreateCbtlog(ctx context.Context, arg CreateCbtlogParams) (Cbt
 	return i, err
 }
 
+const getCbtlogByFileName = `-- name: GetCbtlogByFileName :one
+SELECT id, filename, relative_path, url, upload_status, upload_status_reason, active, created_at, updated_at FROM cbtlogs WHERE filename = ?
+`
+
+func (q *Queries) GetCbtlogByFileName(ctx context.Context, filename string) (Cbtlog, error) {
+	row := q.db.QueryRowContext(ctx, getCbtlogByFileName, filename)
+	var i Cbtlog
+	err := row.Scan(
+		&i.ID,
+		&i.Filename,
+		&i.RelativePath,
+		&i.Url,
+		&i.UploadStatus,
+		&i.UploadStatusReason,
+		&i.Active,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const listCbtlogsByUploadStatus = `-- name: ListCbtlogsByUploadStatus :many
 SELECT id, filename, relative_path, url, upload_status, upload_status_reason, active, created_at, updated_at
 FROM cbtlogs

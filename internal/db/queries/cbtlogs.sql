@@ -28,3 +28,6 @@ FROM cbtlogs
 WHERE
     upload_status = ?
 ORDER BY created_at DESC;
+
+-- name: GetCbtlogByFileName :one
+SELECT * FROM cbtlogs WHERE filename = ?;
