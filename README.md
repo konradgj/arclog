@@ -13,11 +13,10 @@ arc-dps log uploader
   - [x] handle ratelimit
   - [x] post to dps.report
   - [x] handle post options 
-- [ ] upload command
+- [x] upload command
   - [x] no flag - uploads all pending logs
   - [x] upload -watch (move watch command here)
-  - [ ] -dir (upload only logs in dir)
-  - [ ] -file (upload only given log)
+  - [x] -p (upload files in given path)
 - [ ] log command
   - [x] add (add logs to db)
     - [x] add files or dirs (can add multiple paths i commands)

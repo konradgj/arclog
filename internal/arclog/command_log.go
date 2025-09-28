@@ -1,41 +1,29 @@
 package arclog
 
 import (
-	"context"
 	"fmt"
-
-	"github.com/konradgj/arclog/internal/database"
 )
 
-func (ctx *Context) AddLogsToDb(path string) {
-	logPaths, err := GetAllFilePaths(path)
-	if err != nil {
-		ctx.Logger.Errorw("could not get logs", "err", err)
-		return
-	}
-	if len(logPaths) == 0 {
-		fmt.Println("Found 0 logs in given path")
-		return
-	}
-
-	for _, logPath := range logPaths {
-		name, relPath, err := ctx.Config.GetLogNameAndRelativePath(logPath)
+func (ctx *Context) AddLogsToDb(paths []string) {
+	var logPaths []string
+	for _, path := range paths {
+		ps, err := GetAllFilePaths(path)
 		if err != nil {
-			ctx.Logger.Errorw("error getting filename", "err", err)
+			ctx.Logger.Errorw("could not get logs", "err", err)
+			return
 		}
-
-		_, err = ctx.St.Queries.GetCbtlogByFileName(context.Background(), name)
-		if err == nil {
-			ctx.Logger.Infow("File already exists in db", "name", name)
+		if len(ps) == 0 {
+			fmt.Printf("Found 0 logs in given path: %s\n", path)
 			continue
 		}
 
-		_, err = ctx.St.Queries.CreateCbtlog(context.Background(), database.CreateCbtlogParams{
-			Filename:     name,
-			RelativePath: relPath,
-		})
+		logPaths = append(logPaths, ps...)
+	}
+
+	for _, logPath := range logPaths {
+		_, err := ctx.addCbtlogToDb(logPath)
 		if err != nil {
-			ctx.Logger.Errorw("could not add file to db", "file", name, "err", err)
+			ctx.Logger.Errorw("could not add log to db", "err", err)
 		}
 	}
 }

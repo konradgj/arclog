@@ -1,11 +1,9 @@
 package arclog
 
 import (
-	"context"
 	"sync"
 
 	"github.com/konradgj/arclog/internal/database"
-	"github.com/konradgj/arclog/internal/db"
 )
 
 type UploadJob struct {
@@ -31,14 +29,8 @@ func (ctx *Context) StartWorkerPool(numWorkers int, anonymous, detailedwvw bool)
 	return jobs, &wg
 }
 
-func (ctx *Context) EnqueuePending(jobs chan<- UploadJob) {
-	uploads, err := ctx.St.Queries.ListCbtlogsByUploadStatus(context.Background(), string(db.StatusPending))
-	if err != nil {
-		ctx.Logger.Errorw("could not list pending uploads", "err", err)
-		return
-	}
-
-	for _, u := range uploads {
-		jobs <- UploadJob{Cbtlog: u}
+func (ctx *Context) EnqueueCbtlogs(cbtlogs []database.Cbtlog, jobs chan<- UploadJob) {
+	for _, l := range cbtlogs {
+		jobs <- UploadJob{Cbtlog: l}
 	}
 }

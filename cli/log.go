@@ -5,12 +5,10 @@ type LogCmd struct {
 }
 
 type LogAddCmd struct {
-	Paths []string `arg:"" name:"path" type:"path" help:"Paths to add."`
+	Paths []string `arg:"" name:"path" type:"path" help:"Paths to add. (supports multiple paths)"`
 }
 
 func (l LogAddCmd) Run(ctx *Context) error {
-	for _, path := range l.Paths {
-		ctx.AddLogsToDb(path)
-	}
+	ctx.AddLogsToDb(l.Paths)
 	return nil
 }
