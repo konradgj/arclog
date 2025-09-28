@@ -58,10 +58,10 @@ func (ctx *Context) UploadLog(cbtlog database.Cbtlog, anonymous, detailedwvw boo
 		ID:                 cbtlog.ID,
 	})
 	if err != nil {
-		ctx.Logger.Error("error updating upload", "file", cbtlog.FilePath, "err", err)
+		ctx.Logger.Error("error updating upload", "file", cbtlog.Filename, "err", err)
 		return
 	}
-	ctx.Logger.Debug("updated upload in db", "upload", cbtlog.FilePath, "status", db.StatusUploading)
+	ctx.Logger.Debug("updated upload in db", "upload", cbtlog.Filename, "status", db.StatusUploading)
 
 	opts := dpsreport.UploadContentOptions{
 		UserToken:   ctx.Config.UserToken,
@@ -70,7 +70,7 @@ func (ctx *Context) UploadLog(cbtlog database.Cbtlog, anonymous, detailedwvw boo
 	}
 
 	ctx.RateLimiter.Wait()
-	resp, err := ctx.DpsReportClient.UploadContent(cbtlog.FilePath, opts)
+	resp, err := ctx.DpsReportClient.UploadContent(ctx.Config.GetLogFilePath(cbtlog), opts)
 	if err != nil && resp == nil {
 		ctx.Logger.Error("could not upload", "err", err)
 
@@ -80,7 +80,7 @@ func (ctx *Context) UploadLog(cbtlog database.Cbtlog, anonymous, detailedwvw boo
 			ID:                 cbtlog.ID,
 		})
 		if err != nil {
-			ctx.Logger.Error("error updating upload in db", "file", cbtlog.FilePath, "err", err)
+			ctx.Logger.Error("error updating upload in db", "file", cbtlog.Filename, "err", err)
 			return
 		}
 	}
@@ -99,5 +99,5 @@ func (ctx *Context) UploadLog(cbtlog database.Cbtlog, anonymous, detailedwvw boo
 		return
 	}
 
-	ctx.Logger.Info("successfully uploaded to arcdps", "file", cbtlog.FilePath)
+	ctx.Logger.Info("successfully uploaded to arcdps", "file", cbtlog.Filename)
 }

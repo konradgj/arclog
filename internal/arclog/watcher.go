@@ -63,20 +63,27 @@ func (ctx *Context) NewWatcher(jobs chan<- UploadJob, cancelCtx context.Context)
 					continue
 				}
 
+				fileName, relativePath, err := ctx.Config.GetLogNameAndRelativePath(event.Name)
+				if err != nil {
+					ctx.Logger.Error("error getting filename", "err", err)
+				}
+
 				ctx.Logger.Debug("new event", event.Name)
 				cbtlog, err := ctx.St.Queries.CreateCbtlog(context.Background(), database.CreateCbtlogParams{
-					FilePath: event.Name,
+					Filename:     fileName,
+					RelativePath: relativePath,
 				})
 				if err != nil {
 					ctx.Logger.Error("error adding upload to db", "err", err)
 					continue
 				}
+				ctx.Logger.Debug("added log to db", cbtlog)
 
-				ctx.Logger.Info("added upload to db", "file_path", cbtlog.FilePath)
+				ctx.Logger.Info("added upload to db", "file", cbtlog.Filename)
 
 				if jobs != nil {
 					jobs <- UploadJob{Cbtlog: cbtlog}
-					ctx.Logger.Debug("enqueued upload job", "file", cbtlog.FilePath)
+					ctx.Logger.Debug("enqueued upload job", "file", cbtlog.Filename)
 				}
 
 			case err, ok := <-watcher.Errors:

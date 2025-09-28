@@ -11,20 +11,24 @@ import (
 )
 
 const createCbtlog = `-- name: CreateCbtlog :one
-INSERT INTO cbtlogs (file_path, url) VALUES (?, ?) RETURNING id, file_path, url, upload_status, upload_status_reason, active, created_at, updated_at
+INSERT INTO
+    cbtlogs (filename, relative_path, url)
+VALUES (?, ?, ?) RETURNING id, filename, relative_path, url, upload_status, upload_status_reason, active, created_at, updated_at
 `
 
 type CreateCbtlogParams struct {
-	FilePath string
-	Url      sql.NullString
+	Filename     string
+	RelativePath sql.NullString
+	Url          sql.NullString
 }
 
 func (q *Queries) CreateCbtlog(ctx context.Context, arg CreateCbtlogParams) (Cbtlog, error) {
-	row := q.db.QueryRowContext(ctx, createCbtlog, arg.FilePath, arg.Url)
+	row := q.db.QueryRowContext(ctx, createCbtlog, arg.Filename, arg.RelativePath, arg.Url)
 	var i Cbtlog
 	err := row.Scan(
 		&i.ID,
-		&i.FilePath,
+		&i.Filename,
+		&i.RelativePath,
 		&i.Url,
 		&i.UploadStatus,
 		&i.UploadStatusReason,
@@ -36,7 +40,7 @@ func (q *Queries) CreateCbtlog(ctx context.Context, arg CreateCbtlogParams) (Cbt
 }
 
 const listCbtlogsByUploadStatus = `-- name: ListCbtlogsByUploadStatus :many
-SELECT id, file_path, url, upload_status, upload_status_reason, active, created_at, updated_at
+SELECT id, filename, relative_path, url, upload_status, upload_status_reason, active, created_at, updated_at
 FROM cbtlogs
 WHERE
     upload_status = ?
@@ -54,7 +58,8 @@ func (q *Queries) ListCbtlogsByUploadStatus(ctx context.Context, uploadStatus st
 		var i Cbtlog
 		if err := rows.Scan(
 			&i.ID,
-			&i.FilePath,
+			&i.Filename,
+			&i.RelativePath,
 			&i.Url,
 			&i.UploadStatus,
 			&i.UploadStatusReason,

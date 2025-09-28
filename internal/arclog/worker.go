@@ -22,7 +22,7 @@ func (ctx *Context) StartWorkerPool(numWorkers int, anonymous, detailedwvw bool)
 		go func(id int) {
 			defer wg.Done()
 			for job := range jobs {
-				ctx.Logger.Debug("worker started", "worker", id, "file", job.Cbtlog.FilePath)
+				ctx.Logger.Debug("worker started", "worker", id, "file", job.Cbtlog.Filename)
 				ctx.UploadLog(job.Cbtlog, anonymous, detailedwvw)
 			}
 		}(i)

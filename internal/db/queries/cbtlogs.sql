@@ -1,5 +1,7 @@
 -- name: CreateCbtlog :one
-INSERT INTO cbtlogs (file_path, url) VALUES (?, ?) RETURNING *;
+INSERT INTO
+    cbtlogs (filename, relative_path, url)
+VALUES (?, ?, ?) RETURNING *;
 
 -- name: UpdateCtblogUploadStatus :exec
 UPDATE cbtlogs

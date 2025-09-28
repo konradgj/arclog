@@ -1,7 +1,8 @@
 -- +goose Up
 CREATE TABLE cbtlogs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    file_path TEXT NOT NULL UNIQUE,
+    filename TEXT NOT NULL UNIQUE,
+    relative_path TEXT,
     url TEXT UNIQUE,
     upload_status TEXT NOT NULL DEFAULT 'pending',
     upload_status_reason TEXT NOT NULL DEFAULT 'create',

@@ -11,7 +11,8 @@ import (
 
 type Cbtlog struct {
 	ID                 int64
-	FilePath           string
+	Filename           string
+	RelativePath       sql.NullString
 	Url                sql.NullString
 	UploadStatus       string
 	UploadStatusReason string
