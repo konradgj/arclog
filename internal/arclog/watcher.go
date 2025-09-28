@@ -68,7 +68,7 @@ func (ctx *Context) NewWatcher(jobs chan<- UploadJob, cancelCtx context.Context)
 					ctx.Logger.Errorw("error getting filename", "err", err)
 				}
 
-				ctx.Logger.Debug("new event", event.Name)
+				ctx.Logger.Debugw("new event", "file", event.Name)
 				cbtlog, err := ctx.St.Queries.CreateCbtlog(context.Background(), database.CreateCbtlogParams{
 					Filename:     fileName,
 					RelativePath: relativePath,

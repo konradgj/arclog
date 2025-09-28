@@ -25,8 +25,8 @@ func (ctx *Context) AddLogsToDb(path string) {
 		}
 
 		_, err = ctx.St.Queries.GetCbtlogByFileName(context.Background(), name)
-		if err != nil {
-			ctx.Logger.Debugw("File already exists in db", "name: ", name)
+		if err == nil {
+			ctx.Logger.Infow("File already exists in db", "name", name)
 			continue
 		}
 

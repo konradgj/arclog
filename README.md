@@ -19,10 +19,8 @@ arc-dps log uploader
   - [ ] -dir (upload only logs in dir)
   - [ ] -file (upload only given log)
 - [ ] log command
-  - [ ] add (add logs to db)
-    - [ ] no flag - adds all logs
-    - [ ] -file (add only file)
-    - [ ] -dir (add only from dir)
+  - [x] add (add logs to db)
+    - [x] add files or dirs (can add multiple paths i commands)
   - [ ] list (list logs in db)
     - [ ] -f - filter opts (pending, uploaded, failed, skipped)
   - [ ] clear (deactivate logs active = 0)

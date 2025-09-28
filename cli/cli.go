@@ -24,6 +24,7 @@ var cli struct {
 	Debug bool `help:"Enable debug mode."`
 
 	Config ConfigCmd `cmd:"" help:"Manage config."`
+	Log    LogCmd    `cmd:"" help:"Manage logs."`
 	Watch  WatchCmd  `cmd:"" help:"Watch log directory for new logs."`
 	Upload UploadCmd `cmd:"" help:"Upload pending files to dps.report."`
 }

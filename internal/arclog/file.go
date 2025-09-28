@@ -39,6 +39,9 @@ func (cfg *Config) GetLogFilePath(cbtlog database.Cbtlog) string {
 func GetAllFilePaths(path string) ([]string, error) {
 	stat, err := os.Stat(path)
 	if err != nil {
+		if os.IsNotExist(err) {
+			return nil, fmt.Errorf("log path does not exist: %s", path)
+		}
 		return nil, fmt.Errorf("could not get path stats: %w", err)
 	}
 
@@ -52,7 +55,7 @@ func GetAllFilePaths(path string) ([]string, error) {
 	var filePaths []string
 	err = filepath.WalkDir(path, func(p string, d fs.DirEntry, errWalk error) error {
 		if errWalk != nil {
-			return err
+			return errWalk
 		}
 		if !d.IsDir() && strings.HasSuffix(p, ".zevtc") {
 			filePaths = append(filePaths, p)
