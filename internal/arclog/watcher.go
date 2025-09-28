@@ -16,7 +16,7 @@ import (
 func (ctx *Context) RunWatch(cancelCtx context.Context) {
 	err := ctx.NewWatcher(nil, cancelCtx)
 	if err != nil {
-		ctx.Logger.Error("could not start watcher", "err", err)
+		ctx.Logger.Errorw("could not start watcher", "err", err)
 		os.Exit(1)
 	}
 	defer ctx.Watcher.Close()
@@ -51,7 +51,7 @@ func (ctx *Context) NewWatcher(jobs chan<- UploadJob, cancelCtx context.Context)
 
 				st, err := os.Stat(event.Name)
 				if err != nil {
-					ctx.Logger.Error("error in filepath", "err", err)
+					ctx.Logger.Errorw("error in filepath", "err", err)
 					continue
 				}
 
@@ -65,7 +65,7 @@ func (ctx *Context) NewWatcher(jobs chan<- UploadJob, cancelCtx context.Context)
 
 				fileName, relativePath, err := ctx.Config.GetLogNameAndRelativePath(event.Name)
 				if err != nil {
-					ctx.Logger.Error("error getting filename", "err", err)
+					ctx.Logger.Errorw("error getting filename", "err", err)
 				}
 
 				ctx.Logger.Debug("new event", event.Name)
@@ -74,25 +74,25 @@ func (ctx *Context) NewWatcher(jobs chan<- UploadJob, cancelCtx context.Context)
 					RelativePath: relativePath,
 				})
 				if err != nil {
-					ctx.Logger.Error("error adding upload to db", "err", err)
+					ctx.Logger.Errorw("error adding upload to db", "err", err)
 					continue
 				}
-				ctx.Logger.Debug("added log to db", cbtlog)
+				ctx.Logger.Debugw("added log to db", cbtlog)
 
-				ctx.Logger.Info("added upload to db", "file", cbtlog.Filename)
+				ctx.Logger.Infow("added upload to db", "file", cbtlog.Filename)
 
 				if jobs != nil {
 					jobs <- UploadJob{Cbtlog: cbtlog}
-					ctx.Logger.Debug("enqueued upload job", "file", cbtlog.Filename)
+					ctx.Logger.Debugw("enqueued upload job", "file", cbtlog.Filename)
 				}
 
 			case err, ok := <-watcher.Errors:
 				if !ok {
-					ctx.Logger.Warn("watcher errors channel closed")
+					ctx.Logger.Warnw("watcher errors channel closed")
 					return
 				}
 				if err != nil {
-					ctx.Logger.Error("watcher error", "err", err)
+					ctx.Logger.Errorw("watcher error", "err", err)
 					return
 				}
 			}

@@ -13,12 +13,12 @@ import (
 
 func (ctx *Context) RunPendingUploads(anonymous, detailedwvw bool, cancelCtx context.Context) {
 	jobs, wg := ctx.StartWorkerPool(4, anonymous, detailedwvw)
-
+	fmt.Println("Uploading pending logs...")
 	ctx.EnqueuePending(jobs)
 	close(jobs)
 
 	wg.Wait()
-	ctx.Logger.Debug("All workers shut down")
+	ctx.Logger.Debugw("All workers shut down...")
 }
 
 func (ctx *Context) RunWatchUploads(anonymous, detailedwvw bool, cancelCtx context.Context) {
@@ -35,19 +35,19 @@ func (ctx *Context) RunWatchUploads(anonymous, detailedwvw bool, cancelCtx conte
 
 	err := ctx.NewWatcher(jobs, cancelCtx)
 	if err != nil {
-		ctx.Logger.Error("could not start watcher: %w", err)
+		ctx.Logger.Errorw("could not start watcher", "err", err)
 		os.Exit(1)
 	}
 	fmt.Printf("Started watching dir: %s\n", ctx.Config.LogPath)
 
 	<-cancelCtx.Done()
-	fmt.Println("shutting down...")
+	fmt.Println("Shutting down...")
 	if ctx.Watcher != nil {
 		ctx.Watcher.Close()
 	}
 	close(jobs)
 	wg.Wait()
-	ctx.Logger.Debug("all workers shut down")
+	ctx.Logger.Debugw("all workers shut down")
 	fmt.Println("All workers shut down")
 }
 
@@ -58,10 +58,10 @@ func (ctx *Context) UploadLog(cbtlog database.Cbtlog, anonymous, detailedwvw boo
 		ID:                 cbtlog.ID,
 	})
 	if err != nil {
-		ctx.Logger.Error("error updating upload", "file", cbtlog.Filename, "err", err)
+		ctx.Logger.Errorw("error updating upload", "file", cbtlog.Filename, "err", err)
 		return
 	}
-	ctx.Logger.Debug("updated upload in db", "upload", cbtlog.Filename, "status", db.StatusUploading)
+	ctx.Logger.Debugw("updated upload in db", "upload", cbtlog.Filename, "status", db.StatusUploading)
 
 	opts := dpsreport.UploadContentOptions{
 		UserToken:   ctx.Config.UserToken,
@@ -72,7 +72,7 @@ func (ctx *Context) UploadLog(cbtlog database.Cbtlog, anonymous, detailedwvw boo
 	ctx.RateLimiter.Wait()
 	resp, err := ctx.DpsReportClient.UploadContent(ctx.Config.GetLogFilePath(cbtlog), opts)
 	if err != nil && resp == nil {
-		ctx.Logger.Error("could not upload", "err", err)
+		ctx.Logger.Errorw("could not upload", "err", err)
 
 		err = ctx.St.Queries.UpdateCtblogUploadStatus(context.Background(), database.UpdateCtblogUploadStatusParams{
 			UploadStatus:       string(db.StatusFailed),
@@ -80,12 +80,12 @@ func (ctx *Context) UploadLog(cbtlog database.Cbtlog, anonymous, detailedwvw boo
 			ID:                 cbtlog.ID,
 		})
 		if err != nil {
-			ctx.Logger.Error("error updating upload in db", "file", cbtlog.Filename, "err", err)
+			ctx.Logger.Errorw("error updating upload in db", "file", cbtlog.Filename, "err", err)
 			return
 		}
 	}
 	if err != nil && resp != nil {
-		ctx.Logger.Error("error decoding response", "err", err)
+		ctx.Logger.Errorw("error decoding response", "err", err)
 	}
 
 	err = ctx.St.Queries.UpdateCbtlogUrl(context.Background(), database.UpdateCbtlogUrlParams{
@@ -95,9 +95,9 @@ func (ctx *Context) UploadLog(cbtlog database.Cbtlog, anonymous, detailedwvw boo
 		ID:                 cbtlog.ID,
 	})
 	if err != nil {
-		ctx.Logger.Error("error updating upload", "file", cbtlog.ID, "err", err)
+		ctx.Logger.Errorw("error updating upload", "file", cbtlog.ID, "err", err)
 		return
 	}
 
-	ctx.Logger.Info("successfully uploaded to arcdps", "file", cbtlog.Filename)
+	ctx.Logger.Infow("successfully uploaded to arcdps", "file", cbtlog.Filename)
 }

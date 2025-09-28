@@ -22,7 +22,7 @@ func (ctx *Context) StartWorkerPool(numWorkers int, anonymous, detailedwvw bool)
 		go func(id int) {
 			defer wg.Done()
 			for job := range jobs {
-				ctx.Logger.Debug("worker started", "worker", id, "file", job.Cbtlog.Filename)
+				ctx.Logger.Debugw("worker started", "worker", id, "file", job.Cbtlog.Filename)
 				ctx.UploadLog(job.Cbtlog, anonymous, detailedwvw)
 			}
 		}(i)
@@ -34,7 +34,7 @@ func (ctx *Context) StartWorkerPool(numWorkers int, anonymous, detailedwvw bool)
 func (ctx *Context) EnqueuePending(jobs chan<- UploadJob) {
 	uploads, err := ctx.St.Queries.ListCbtlogsByUploadStatus(context.Background(), string(db.StatusPending))
 	if err != nil {
-		ctx.Logger.Error("could not list pending uploads", "err", err)
+		ctx.Logger.Errorw("could not list pending uploads", "err", err)
 		return
 	}
 
