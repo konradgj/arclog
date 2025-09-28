@@ -3,7 +3,10 @@ package arclog
 import (
 	"database/sql"
 	"fmt"
+	"io/fs"
+	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/konradgj/arclog/internal/database"
 	"github.com/konradgj/arclog/internal/db"
@@ -31,4 +34,34 @@ func (cfg *Config) GetLogNameAndRelativePath(path string) (string, sql.NullStrin
 
 func (cfg *Config) GetLogFilePath(cbtlog database.Cbtlog) string {
 	return filepath.Join(cfg.LogPath, cbtlog.RelativePath.String, cbtlog.Filename)
+}
+
+func GetAllFilePaths(path string) ([]string, error) {
+	stat, err := os.Stat(path)
+	if err != nil {
+		return nil, fmt.Errorf("could not get path stats: %w", err)
+	}
+
+	if !stat.IsDir() {
+		if strings.HasSuffix(path, ".zevtc") {
+			return []string{path}, nil
+		}
+		return nil, nil
+	}
+
+	var filePaths []string
+	err = filepath.WalkDir(path, func(p string, d fs.DirEntry, errWalk error) error {
+		if errWalk != nil {
+			return err
+		}
+		if !d.IsDir() && strings.HasSuffix(p, ".zevtc") {
+			filePaths = append(filePaths, p)
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, fmt.Errorf("could not walk dir: %w", err)
+	}
+
+	return filePaths, nil
 }
