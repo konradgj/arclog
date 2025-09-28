@@ -29,6 +29,8 @@ func (ctx *Context) addCbtlogToDb(logPath string) (*database.Cbtlog, error) {
 	if err != nil {
 		return nil, fmt.Errorf("could not add file %s to db: %w", name, err)
 	}
+
+	ctx.Logger.Infow("Added file to db", "name", name)
 	return &cbtlog, nil
 }
 

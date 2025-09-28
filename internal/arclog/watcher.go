@@ -79,7 +79,7 @@ func (ctx *Context) NewWatcher(jobs chan<- UploadJob, cancelCtx context.Context)
 				}
 				ctx.Logger.Debugw("added log to db", cbtlog)
 
-				ctx.Logger.Infow("added upload to db", "file", cbtlog.Filename)
+				ctx.Logger.Infow("added log to db", "file", cbtlog.Filename)
 
 				if jobs != nil {
 					jobs <- UploadJob{Cbtlog: cbtlog}
