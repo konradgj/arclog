@@ -1,20 +1,20 @@
 package dpsreport
 
 type UploadResponse struct {
-	ID               string            `json:"id"`
-	Permalink        string            `json:"permalink"`
-	UploadTime       int64             `json:"uploadTime"`
-	EncounterTime    int64             `json:"encounterTime"`
-	Generator        string            `json:"generator"`
-	GeneratorID      int               `json:"generatorId"`
-	GeneratorVersion int               `json:"generatorVersion"`
-	Language         string            `json:"language"`
-	LanguageID       int               `json:"languageId"`
-	UserToken        string            `json:"userToken"`
-	Error            *string           `json:"error"`
-	Encounter        Encounter         `json:"encounter"`
-	Evtc             EvtcMeta          `json:"evtc"`
-	Players          map[string]Player `json:"players"`
+	ID               string    `json:"id"`
+	Permalink        string    `json:"permalink"`
+	UploadTime       int64     `json:"uploadTime"`
+	EncounterTime    int64     `json:"encounterTime"`
+	Generator        string    `json:"generator"`
+	GeneratorID      int       `json:"generatorId"`
+	GeneratorVersion int       `json:"generatorVersion"`
+	Language         string    `json:"language"`
+	LanguageID       int       `json:"languageId"`
+	UserToken        string    `json:"userToken"`
+	Error            *string   `json:"error"`
+	Encounter        Encounter `json:"encounter"`
+	Evtc             EvtcMeta  `json:"evtc"`
+	Players          []Player  `json:"players"`
 }
 
 type Encounter struct {
