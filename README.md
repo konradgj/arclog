@@ -17,11 +17,13 @@ arc-dps log uploader
   - [x] no flag - uploads all pending logs
   - [x] upload -watch (move watch command here)
   - [x] -p (upload files in given path)
+  - [x] -s (upload with specific status)
 - [ ] log command
   - [x] add (add logs to db)
     - [x] add files or dirs (can add multiple paths i commands)
   - [x] list (list logs in db)
     - [x] -f - filter opts (pending, uploaded, failed, skipped)
+    - [ ] -d (filter by date -d date, -b before -a after)
   - [ ] clear (deactivate logs active = 0)
     - [ ] -d (hard delete)
 - [ ] add a way to exclude logs (example: dont post wvw logs)
