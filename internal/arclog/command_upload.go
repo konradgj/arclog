@@ -11,7 +11,7 @@ import (
 	"github.com/konradgj/arclog/internal/dpsreport"
 )
 
-func (ctx *Context) RunUploadLogs(paths []string, anonymous, detailedwvw bool) {
+func (ctx *Context) RunUploadPathLogs(paths []string, anonymous, detailedwvw bool) {
 	var logPaths []string
 	for _, path := range paths {
 		ps, err := GetAllFilePaths(path)
@@ -46,16 +46,16 @@ func (ctx *Context) RunUploadLogs(paths []string, anonymous, detailedwvw bool) {
 	ctx.Logger.Debugw("All workers shut down...")
 }
 
-func (ctx *Context) RunPendingUploads(anonymous, detailedwvw bool, cancelCtx context.Context) {
+func (ctx *Context) RunUploadsByStatus(status string, anonymous, detailedwvw bool, cancelCtx context.Context) {
 	jobs, wg := ctx.StartWorkerPool(4, anonymous, detailedwvw)
 
-	cbtlogs, err := ctx.getPendingCbtlogs()
+	cbtlogs, err := ctx.getCbtlogsByStatus(db.UploadStatus(status))
 	if err != nil {
 		ctx.Logger.Errorw("could not get pending logs", "err", err)
 		return
 	}
 
-	fmt.Println("Uploading pending logs...")
+	fmt.Printf("Uploading %s logs...\n", status)
 	ctx.EnqueueCbtlogs(cbtlogs, jobs)
 	close(jobs)
 
@@ -66,7 +66,7 @@ func (ctx *Context) RunPendingUploads(anonymous, detailedwvw bool, cancelCtx con
 func (ctx *Context) RunWatchUploads(anonymous, detailedwvw bool, cancelCtx context.Context) {
 	jobs, wg := ctx.StartWorkerPool(4, anonymous, detailedwvw)
 
-	cbtlogs, err := ctx.getPendingCbtlogs()
+	cbtlogs, err := ctx.getCbtlogsByStatus(db.StatusPending)
 	if err != nil {
 		ctx.Logger.Errorw("could not get pending logs", "err", err)
 		return

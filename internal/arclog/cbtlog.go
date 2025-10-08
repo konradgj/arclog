@@ -58,8 +58,8 @@ func (ctx *Context) updateLogStatus(id int64, status, reason string, url ...stri
 	}
 }
 
-func (ctx *Context) getPendingCbtlogs() ([]database.Cbtlog, error) {
-	cbtlogs, err := ctx.St.Queries.ListCbtlogsByUploadStatus(context.Background(), string(db.StatusPending))
+func (ctx *Context) getCbtlogsByStatus(status db.UploadStatus) ([]database.Cbtlog, error) {
+	cbtlogs, err := ctx.St.Queries.ListCbtlogsByUploadStatus(context.Background(), string(status))
 	if err != nil {
 		return nil, fmt.Errorf("could not list pending uploads: %w", err)
 	}
