@@ -87,17 +87,8 @@ For help on any command run:
 arclog <command> -h
 ```
 
-## Configuration
-
-The CLI stores a small config (app dir `arclog`) which currently supports:
-
-- logpath — the path to watch for logs
-- usertoken — an optional user token used when uploading
-
-Set them with `arclog config set` and view with `arclog config show`.
-
 ## Roadmap (short)
 
 - Improve log filtering (date ranges)
 - Add exclude rules (e.g. skip WvW logs)
-- Add richer parsing for WvW live info
+- (maybe) Add parsing for WvW live info
