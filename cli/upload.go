@@ -9,9 +9,16 @@ import (
 type UploadCmd struct {
 	Anonymous   bool     `short:"a" help:"Upload anonymously."`
 	Detailedwvw bool     `short:"d" help:"Include detailed WvW logs."`
-	Watch       bool     `short:"w" xor:"X" help:"Monitor log dir and upload as logs are created."`
-	Paths       []string `short:"p" xor:"X" type:"path" help:"Upload from given paths. (supports multiple paths)"`
-	Status      string   `short:"s" xor:"X" default:"" enum:",pending,uploading,uploaded,failed,skipped" help:"Filter logs by upload status."`
+	Watch       bool     `short:"w" help:"Monitor log dir and upload as logs are created."`
+	Paths       []string `short:"p" type:"path" help:"Upload from given paths. (supports multiple paths)"`
+	Status      string   `short:"s" default:"" enum:",pending,uploading,uploaded,failed,skipped" help:"Filter logs by upload status."`
+}
+
+func (cmd *UploadCmd) Validate() error {
+	if cmd.Status != "" && (len(cmd.Paths) > 0 || cmd.Watch) {
+		return fmt.Errorf("--status cannot be used with --path or --watch")
+	}
+	return nil
 }
 
 func (u *UploadCmd) Run(ctx *Context) error {
