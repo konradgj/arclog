@@ -1,20 +1,21 @@
 package dpsreport
 
 type UploadResponse struct {
-	ID               string    `json:"id"`
-	Permalink        string    `json:"permalink"`
-	UploadTime       int64     `json:"uploadTime"`
-	EncounterTime    int64     `json:"encounterTime"`
-	Generator        string    `json:"generator"`
-	GeneratorID      int       `json:"generatorId"`
-	GeneratorVersion int       `json:"generatorVersion"`
-	Language         string    `json:"language"`
-	LanguageID       int       `json:"languageId"`
-	UserToken        string    `json:"userToken"`
-	Error            *string   `json:"error"`
-	Encounter        Encounter `json:"encounter"`
-	Evtc             EvtcMeta  `json:"evtc"`
-	Players          []Player  `json:"players"`
+	ID               string     `json:"id"`
+	Permalink        string     `json:"permalink"`
+	UploadTime       int64      `json:"uploadTime"`
+	EncounterTime    int64      `json:"encounterTime"`
+	Generator        string     `json:"generator"`
+	GeneratorID      int        `json:"generatorId"`
+	GeneratorVersion int        `json:"generatorVersion"`
+	Language         string     `json:"language"`
+	LanguageID       int        `json:"languageId"`
+	Evtc             EvtcMeta   `json:"evtc"`
+	Players          []Player   `json:"players"`
+	Encounter        Encounter  `json:"encounter"`
+	Report           ReportInfo `json:"report"`
+	Error            *string    `json:"error"`
+	UserToken        string     `json:"userToken"`
 }
 
 type Encounter struct {
@@ -42,4 +43,9 @@ type Player struct {
 	CharacterName string `json:"character_name"`
 	Profession    int    `json:"profession"`
 	EliteSpec     int    `json:"elite_spec"`
+}
+
+type ReportInfo struct {
+	Anonymous bool `json:"anonymous"`
+	Detailed  bool `json:"detailed"`
 }
