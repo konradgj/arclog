@@ -25,7 +25,7 @@ var cli struct {
 
 	Config ConfigCmd `cmd:"" help:"Manage config."`
 	Log    LogCmd    `cmd:"" help:"Manage logs."`
-	Watch  WatchCmd  `cmd:"" help:"Watch log directory for new logs."`
+	Watch  WatchCmd  `cmd:"" help:"Watch log directory for new logs and add to db."`
 	Upload UploadCmd `cmd:"" help:"Upload pending files to dps.report."`
 }
 
