@@ -65,6 +65,7 @@ Global flags:
 - Flags available (list):
   - `-s` list logs filtered by upload status (pending, uploading, uploaded, failed, skipped)
   - `-p` list logs filtered by relative path
+    - relative path supports wildcards: eg. deimos% or "Deimos (17154)"
 
 #### watch
 - `arclog watch` — watch the configured log directory and add them to db

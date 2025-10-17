@@ -37,8 +37,10 @@ WHERE (
         OR sqlc.narg ('upload_status') IS NULL
     )
     AND (
-        relative_path = sqlc.narg ('relative_path')
-        OR sqlc.narg ('relative_path') IS NULL
+        relative_path LIKE COALESCE(
+            sqlc.narg ('relative_path'),
+            relative_path
+        )
     )
 ORDER BY created_at DESC;
 

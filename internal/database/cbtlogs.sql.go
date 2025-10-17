@@ -68,8 +68,10 @@ WHERE (
         OR ?1 IS NULL
     )
     AND (
-        relative_path = ?2
-        OR ?2 IS NULL
+        relative_path LIKE COALESCE(
+            ?2,
+            relative_path
+        )
     )
 ORDER BY created_at DESC
 `
