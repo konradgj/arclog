@@ -2,19 +2,19 @@
 
 `arclog` is a small command-line tool for managing arcdps combat logs and uploading them to [dps.report](https://dps.report).
 
-It provides a local SQLite-backed database of found logs, a watcher to monitor your log directory, and an uploader that posts logs to dps.report while handling rate limits and retry/state tracking.
+It provides a local SQLite database tracking logs, a watcher to monitor for new logs, and an uploader that posts logs to dps.report.
 
 ## Features
 
 - Store and query logs in a local DB.
-- Add files or directories of logs to the DB.
+  - Add files or directories of logs to the DB.
 - Watch a log directory and automatically add & upload new logs.
 - Upload pending logs to dps.report with per-file status tracking.
 - List uploads by various filters.
 
 ## Quick install (from source)
 
-This project is written in Go. You can build it locally with the Go toolchain.
+You can build it locally with the Go toolchain.
 
 1. Clone the repository:
 
@@ -55,22 +55,19 @@ Global flags:
 #### config
 - `arclog config show` — print current configuration
 - `arclog config set` — set saved config values
-- Flags available:
+- Flags available (set):
   - `-p` set log path (default is arcdps default)
   - `-t` set dps.report usertoken
 
 #### log
-- `arclog log add /path/to/file.evtx /path/to/dir` — add files/dirs to the DB (supports multiple paths)
-- `arclog log list -s pending` 
-- Flags available:
+- `arclog log add /path/to/file.zevtc /path/to/dir` — add files/dirs to the DB (supports multiple paths)
+- `arclog log list` 
+- Flags available (list):
   - `-s` list logs filtered by upload status (pending, uploading, uploaded, failed, skipped)
   - `-p` list logs filtered by relative path
 
 #### watch
-- `arclog watch` — watch the configured log directory and process new files
-- Flags available: 
-  - `-a` to upload anonymously
-  - `-d` to enable detailed WvW logs
+- `arclog watch` — watch the configured log directory and add them to db
 
 #### upload
 - `arclog upload` — upload all pending logs
@@ -78,6 +75,9 @@ Global flags:
 - `arclog upload -s failed` — attempt uploads for logs with a specific status
 - `arclog upload -w` — monitor log directory and upload as logs are created
 - Flags available: 
+  - `-p` paths to upload from (supports multiple paths)
+  - `-s` upload logs with specific status
+  - `-w` watch for new files and add to upload queue
   - `-a` to upload anonymously
   - `-d` to enable detailed WvW logs
 
