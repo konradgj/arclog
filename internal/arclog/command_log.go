@@ -32,8 +32,8 @@ func (ctx *Context) RunAddLogsToDb(paths []string) {
 	}
 }
 
-func (ctx *Context) RunListCbtlogsByFilter(uploadStatus, relativePath string) {
-	cbtlogs, err := ctx.listCbtlogsByFilters(uploadStatus, relativePath)
+func (ctx *Context) RunListCbtlogsByFilter(uploadStatus, relativePath, date string) {
+	cbtlogs, err := ctx.listCbtlogsByFilters(uploadStatus, relativePath, date)
 	if err != nil {
 		ctx.Logger.Errorw("could not list logs", "err", err)
 		return

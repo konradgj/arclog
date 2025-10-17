@@ -73,16 +73,25 @@ WHERE (
             relative_path
         )
     )
+    AND (
+        substr(
+            filename,
+            1,
+            length(?3)
+        ) = ?3
+        OR ?3 IS NULL
+    )
 ORDER BY created_at DESC
 `
 
 type ListCbtlogsByFiltersParams struct {
 	UploadStatus sql.NullString
 	RelativePath sql.NullString
+	Date         interface{}
 }
 
 func (q *Queries) ListCbtlogsByFilters(ctx context.Context, arg ListCbtlogsByFiltersParams) ([]Cbtlog, error) {
-	rows, err := q.db.QueryContext(ctx, listCbtlogsByFilters, arg.UploadStatus, arg.RelativePath)
+	rows, err := q.db.QueryContext(ctx, listCbtlogsByFilters, arg.UploadStatus, arg.RelativePath, arg.Date)
 	if err != nil {
 		return nil, err
 	}

@@ -42,6 +42,14 @@ WHERE (
             relative_path
         )
     )
+    AND (
+        substr(
+            filename,
+            1,
+            length(sqlc.narg ('date'))
+        ) = sqlc.narg ('date')
+        OR sqlc.narg ('date') IS NULL
+    )
 ORDER BY created_at DESC;
 
 -- name: GetCbtlogByFileName :one
