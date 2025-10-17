@@ -81,6 +81,18 @@ WHERE (
         ) = ?3
         OR ?3 IS NULL
     )
+    AND (
+        (
+            substr(filename, 1, 8) >= ?4
+            OR ?4 IS NULL
+        )
+    )
+    AND (
+        (
+            substr(filename, 1, 8) <= ?5
+            OR ?5 IS NULL
+        )
+    )
 ORDER BY created_at DESC
 `
 
@@ -88,10 +100,18 @@ type ListCbtlogsByFiltersParams struct {
 	UploadStatus sql.NullString
 	RelativePath sql.NullString
 	Date         interface{}
+	FromDate     sql.NullString
+	ToDate       sql.NullString
 }
 
 func (q *Queries) ListCbtlogsByFilters(ctx context.Context, arg ListCbtlogsByFiltersParams) ([]Cbtlog, error) {
-	rows, err := q.db.QueryContext(ctx, listCbtlogsByFilters, arg.UploadStatus, arg.RelativePath, arg.Date)
+	rows, err := q.db.QueryContext(ctx, listCbtlogsByFilters,
+		arg.UploadStatus,
+		arg.RelativePath,
+		arg.Date,
+		arg.FromDate,
+		arg.ToDate,
+	)
 	if err != nil {
 		return nil, err
 	}

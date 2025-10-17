@@ -50,6 +50,18 @@ WHERE (
         ) = sqlc.narg ('date')
         OR sqlc.narg ('date') IS NULL
     )
+    AND (
+        (
+            substr(filename, 1, 8) >= sqlc.narg ('from_date')
+            OR sqlc.narg ('from_date') IS NULL
+        )
+    )
+    AND (
+        (
+            substr(filename, 1, 8) <= sqlc.narg ('to_date')
+            OR sqlc.narg ('to_date') IS NULL
+        )
+    )
 ORDER BY created_at DESC;
 
 -- name: GetCbtlogByFileName :one

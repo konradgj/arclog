@@ -66,6 +66,9 @@ Global flags:
   - `-s` list logs filtered by upload status (pending, uploading, uploaded, failed, skipped)
   - `-p` list logs filtered by relative path
     - relative path supports wildcards: eg. deimos% or "Deimos (17154)"
+  - `-d` list logs by date
+  - `--from` list logs from (>=) date
+  - `--to` list logs to (<=) date
 
 #### watch
 - `arclog watch` — watch the configured log directory and add them to db
@@ -90,6 +93,5 @@ arclog <command> -h
 
 ## Roadmap (short)
 
-- Improve log filtering (date ranges)
 - Add exclude rules (e.g. skip WvW logs)
 - (maybe) Add parsing for WvW live info

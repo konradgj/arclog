@@ -67,11 +67,13 @@ func (ctx *Context) getCbtlogsByStatus(status db.UploadStatus) ([]database.Cbtlo
 	return cbtlogs, nil
 }
 
-func (ctx *Context) listCbtlogsByFilters(uploadStatus, relativePath, date string) ([]database.Cbtlog, error) {
+func (ctx *Context) listCbtlogsByFilters(uploadStatus, relativePath, date, fromDate, toDate string) ([]database.Cbtlog, error) {
 	cbtlogs, err := ctx.St.Queries.ListCbtlogsByFilters(context.Background(), database.ListCbtlogsByFiltersParams{
 		UploadStatus: db.WrapNullStr(uploadStatus),
 		RelativePath: db.WrapNullStr(relativePath),
 		Date:         db.WrapNullStr(date),
+		FromDate:     db.WrapNullStr(fromDate),
+		ToDate:       db.WrapNullStr(toDate),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("could not list logs: %w", err)

@@ -20,21 +20,38 @@ type LogListCmd struct {
 	Uploadstatus string `short:"s" default:"" enum:",pending,uploading,uploaded,failed,skipped" help:"Filter by upload status."`
 	Relativepath string `short:"p" help:"Filter by relative path."`
 	Date         string `short:"d" help:"Filter by date (YYYY, YYYYMM or YYYYMMDD)."`
+	From         string `help:"Filter from date (YYYY, YYYYMM or YYYYMMDD)."`
+	To           string `help:"Filter to date (YYYY, YYYYMM or YYYYMMDD)."`
 }
 
 func (l LogListCmd) Run(ctx *Context) error {
-	ctx.RunListCbtlogsByFilter(l.Uploadstatus, l.Relativepath, l.Date)
+	ctx.RunListCbtlogsByFilter(l.Uploadstatus, l.Relativepath, l.Date, l.From, l.To)
 	return nil
 }
 
 func (l LogListCmd) Validate() error {
-	if l.Date == "" {
-		return nil
+	if l.Date != "" && (l.From != "" || l.To != "") {
+		return fmt.Errorf("cannot use -d with --from or --to")
 	}
-	if len(l.Date) == 4 || len(l.Date) == 6 || len(l.Date) == 8 {
-		return nil
-	} else {
-		return fmt.Errorf("invalid date format: use YYYY, YYYYMM or YYYYMMDD")
 
+	if err := valitdateDateFormat(l.Date, "-d"); err != nil {
+		return err
 	}
+	if err := valitdateDateFormat(l.From, "--from"); err != nil {
+		return err
+	}
+	if err := valitdateDateFormat(l.To, "--to"); err != nil {
+		return err
+	}
+	return nil
+}
+
+func valitdateDateFormat(val, name string) error {
+	if val == "" {
+		return nil
+	}
+	if len(val) == 4 || len(val) == 6 || len(val) == 8 {
+		return nil
+	}
+	return fmt.Errorf("invalid %s format: use YYYY, YYYYMM or YYYYMMDD", name)
 }
