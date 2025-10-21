@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 )
 
-type PlayerConteiner struct {
+type PlayerContainer struct {
 	List []Player
 }
 
-func (p *PlayerConteiner) UnmarshalJSON(data []byte) error {
+func (p *PlayerContainer) UnmarshalJSON(data []byte) error {
 	var arr []Player
 	if err := json.Unmarshal(data, &arr); err == nil {
 		p.List = arr
