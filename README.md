@@ -23,7 +23,7 @@ git clone https://github.com/konradgj/arclog.git
 cd arclog
 ```
 
-2. Build the binary (recommended):
+2. Build the binary:
 
 ```bash
 go build -o arclog ./
