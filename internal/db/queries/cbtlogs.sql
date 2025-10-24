@@ -12,10 +12,12 @@ SET
 WHERE
     id = ?;
 
--- name: UpdateCbtlogUrl :exec
+-- name: UpdateCbtlogUploadResult :exec
 UPDATE cbtlogs
 SET
     url = ?,
+encounter_success = ?,
+challenge_mode = ?,
     upload_status = ?,
     upload_status_reason = ?,
     updated_at = CURRENT_TIMESTAMP

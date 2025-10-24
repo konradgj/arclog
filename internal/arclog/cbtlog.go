@@ -34,20 +34,7 @@ func (ctx *Context) addCbtlogToDb(logPath string) (*database.Cbtlog, error) {
 	return &cbtlog, nil
 }
 
-func (ctx *Context) updateLogStatus(id int64, status, reason string, url ...string) {
-	if len(url) > 0 {
-		err := ctx.St.Queries.UpdateCbtlogUrl(context.Background(), database.UpdateCbtlogUrlParams{
-			UploadStatus:       status,
-			UploadStatusReason: reason,
-			Url:                db.WrapNullStr(url[0]),
-			ID:                 id,
-		})
-		if err != nil {
-			ctx.Logger.Errorw("could not update log with URL", "logID", id, "err", err)
-		}
-		return
-	}
-
+func (ctx *Context) updateLogStatus(id int64, status, reason string) {
 	err := ctx.St.Queries.UpdateCtblogUploadStatus(context.Background(), database.UpdateCtblogUploadStatusParams{
 		UploadStatus:       status,
 		UploadStatusReason: reason,

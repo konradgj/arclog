@@ -51,6 +51,13 @@ func PrintNullStr(s sql.NullString) string {
 	return s.String
 }
 
+func WrapNullBool(b bool) sql.NullInt64 {
+	if b {
+		return sql.NullInt64{Int64: 1, Valid: true}
+	}
+	return sql.NullInt64{Int64: 0, Valid: true}
+}
+
 func migrateDb(db *sql.DB) error {
 	goose.SetBaseFS(embedMigrations)
 

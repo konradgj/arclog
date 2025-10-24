@@ -132,7 +132,19 @@ func (ctx *Context) UploadLog(cbtlog database.Cbtlog, anonymous, detailedwvw boo
 		ctx.updateLogStatus(cbtlog.ID, string(db.StatusFailed), reason)
 		return
 	}
+	ctx.Logger.Debugw("uploaded log", "response", resp)
 
-	ctx.updateLogStatus(cbtlog.ID, string(db.StatusUploaded), string(db.ReasonSuccess), resp.Permalink)
+	err = ctx.St.Queries.UpdateCbtlogUploadResult(context.Background(), database.UpdateCbtlogUploadResultParams{
+		ID:                 cbtlog.ID,
+		Url:                db.WrapNullStr(resp.Permalink),
+		EncounterSuccess:   db.WrapNullBool(resp.Encounter.Success),
+		ChallengeMode:      db.WrapNullBool(resp.Encounter.IsCm),
+		UploadStatus:       string(db.StatusUploaded),
+		UploadStatusReason: string(db.ReasonSuccess),
+	})
+	if err != nil {
+		ctx.Logger.Errorw("could not update log with result", "err", err)
+		return
+	}
 	ctx.Logger.Infow("successfully uploaded to arcdps", "file", cbtlog.Filename)
 }

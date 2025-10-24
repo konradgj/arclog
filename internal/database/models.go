@@ -19,4 +19,6 @@ type Cbtlog struct {
 	Active             int64
 	CreatedAt          time.Time
 	UpdatedAt          time.Time
+	EncounterSuccess   sql.NullInt64
+	ChallengeMode      sql.NullInt64
 }

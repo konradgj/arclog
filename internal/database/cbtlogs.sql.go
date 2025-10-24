@@ -13,7 +13,7 @@ import (
 const createCbtlog = `-- name: CreateCbtlog :one
 INSERT INTO
     cbtlogs (filename, relative_path, url)
-VALUES (?, ?, ?) RETURNING id, filename, relative_path, url, upload_status, upload_status_reason, active, created_at, updated_at
+VALUES (?, ?, ?) RETURNING id, filename, relative_path, url, upload_status, upload_status_reason, active, created_at, updated_at, encounter_success, challenge_mode
 `
 
 type CreateCbtlogParams struct {
@@ -35,12 +35,14 @@ func (q *Queries) CreateCbtlog(ctx context.Context, arg CreateCbtlogParams) (Cbt
 		&i.Active,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.EncounterSuccess,
+		&i.ChallengeMode,
 	)
 	return i, err
 }
 
 const getCbtlogByFileName = `-- name: GetCbtlogByFileName :one
-SELECT id, filename, relative_path, url, upload_status, upload_status_reason, active, created_at, updated_at FROM cbtlogs WHERE filename = ?
+SELECT id, filename, relative_path, url, upload_status, upload_status_reason, active, created_at, updated_at, encounter_success, challenge_mode FROM cbtlogs WHERE filename = ?
 `
 
 func (q *Queries) GetCbtlogByFileName(ctx context.Context, filename string) (Cbtlog, error) {
@@ -56,12 +58,14 @@ func (q *Queries) GetCbtlogByFileName(ctx context.Context, filename string) (Cbt
 		&i.Active,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.EncounterSuccess,
+		&i.ChallengeMode,
 	)
 	return i, err
 }
 
 const listCbtlogsByFilters = `-- name: ListCbtlogsByFilters :many
-SELECT id, filename, relative_path, url, upload_status, upload_status_reason, active, created_at, updated_at
+SELECT id, filename, relative_path, url, upload_status, upload_status_reason, active, created_at, updated_at, encounter_success, challenge_mode
 FROM cbtlogs
 WHERE (
         upload_status = ?1
@@ -129,6 +133,8 @@ func (q *Queries) ListCbtlogsByFilters(ctx context.Context, arg ListCbtlogsByFil
 			&i.Active,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.EncounterSuccess,
+			&i.ChallengeMode,
 		); err != nil {
 			return nil, err
 		}
@@ -144,7 +150,7 @@ func (q *Queries) ListCbtlogsByFilters(ctx context.Context, arg ListCbtlogsByFil
 }
 
 const listCbtlogsByUploadStatus = `-- name: ListCbtlogsByUploadStatus :many
-SELECT id, filename, relative_path, url, upload_status, upload_status_reason, active, created_at, updated_at
+SELECT id, filename, relative_path, url, upload_status, upload_status_reason, active, created_at, updated_at, encounter_success, challenge_mode
 FROM cbtlogs
 WHERE
     upload_status = ?
@@ -170,6 +176,8 @@ func (q *Queries) ListCbtlogsByUploadStatus(ctx context.Context, uploadStatus st
 			&i.Active,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.EncounterSuccess,
+			&i.ChallengeMode,
 		); err != nil {
 			return nil, err
 		}
@@ -184,10 +192,12 @@ func (q *Queries) ListCbtlogsByUploadStatus(ctx context.Context, uploadStatus st
 	return items, nil
 }
 
-const updateCbtlogUrl = `-- name: UpdateCbtlogUrl :exec
+const updateCbtlogUploadResult = `-- name: UpdateCbtlogUploadResult :exec
 UPDATE cbtlogs
 SET
     url = ?,
+encounter_success = ?,
+challenge_mode = ?,
     upload_status = ?,
     upload_status_reason = ?,
     updated_at = CURRENT_TIMESTAMP
@@ -195,16 +205,20 @@ WHERE
     id = ?
 `
 
-type UpdateCbtlogUrlParams struct {
+type UpdateCbtlogUploadResultParams struct {
 	Url                sql.NullString
+	EncounterSuccess   sql.NullInt64
+	ChallengeMode      sql.NullInt64
 	UploadStatus       string
 	UploadStatusReason string
 	ID                 int64
 }
 
-func (q *Queries) UpdateCbtlogUrl(ctx context.Context, arg UpdateCbtlogUrlParams) error {
-	_, err := q.db.ExecContext(ctx, updateCbtlogUrl,
+func (q *Queries) UpdateCbtlogUploadResult(ctx context.Context, arg UpdateCbtlogUploadResultParams) error {
+	_, err := q.db.ExecContext(ctx, updateCbtlogUploadResult,
 		arg.Url,
+		arg.EncounterSuccess,
+		arg.ChallengeMode,
 		arg.UploadStatus,
 		arg.UploadStatusReason,
 		arg.ID,
