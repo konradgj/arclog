@@ -56,8 +56,8 @@ func (ctx *Context) RunListCbtlogsByFilter(uploadStatus, relativePath, date, fro
 			row.Filename,
 			relPath,
 			url,
-			*db.PrintNullBool(row.ChallengeMode),
-			*db.PrintNullBool(row.EncounterSuccess),
+			db.PrintNullBool(row.ChallengeMode),
+			db.PrintNullBool(row.EncounterSuccess),
 			row.UploadStatus,
 			row.UploadStatusReason,
 		)
