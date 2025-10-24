@@ -69,6 +69,8 @@ Global flags:
   - `-d` list logs by date
   - `--from` list logs from (>=) date
   - `--to` list logs to (<=) date
+  - `-c or --challenge-mode=false` list logs by cm
+  - `-e or --encounter-success=false` list logs by success
 
 #### watch
 - `arclog watch` — watch the configured log directory and add them to db
