@@ -51,8 +51,18 @@ func PrintNullStr(s sql.NullString) string {
 	return s.String
 }
 
-func WrapNullBool(b bool) sql.NullInt64 {
-	if b {
+func PrintNullBool(s sql.NullInt64) *int64 {
+	if !s.Valid {
+		return nil
+	}
+	return &s.Int64
+}
+
+func WrapNullBool(b *bool) sql.NullInt64 {
+	if b == nil {
+		return sql.NullInt64{Valid: false}
+	}
+	if *b {
 		return sql.NullInt64{Int64: 1, Valid: true}
 	}
 	return sql.NullInt64{Int64: 0, Valid: true}

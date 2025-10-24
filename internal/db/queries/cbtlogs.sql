@@ -64,6 +64,14 @@ WHERE (
             OR sqlc.narg ('to_date') IS NULL
         )
     )
+    AND (
+        challenge_mode = sqlc.narg ('challenge_mode')
+	OR sqlc.narg ('challenge_mode') IS NULL
+    )
+    AND (
+        encounter_success = sqlc.narg ('encounter_success ')
+	OR sqlc.narg ('encounter_success ') IS NULL
+    )
 ORDER BY created_at DESC;
 
 -- name: GetCbtlogByFileName :one

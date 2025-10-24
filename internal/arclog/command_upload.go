@@ -137,8 +137,8 @@ func (ctx *Context) UploadLog(cbtlog database.Cbtlog, anonymous, detailedwvw boo
 	err = ctx.St.Queries.UpdateCbtlogUploadResult(context.Background(), database.UpdateCbtlogUploadResultParams{
 		ID:                 cbtlog.ID,
 		Url:                db.WrapNullStr(resp.Permalink),
-		EncounterSuccess:   db.WrapNullBool(resp.Encounter.Success),
-		ChallengeMode:      db.WrapNullBool(resp.Encounter.IsCm),
+		EncounterSuccess:   db.WrapNullBool(&resp.Encounter.Success),
+		ChallengeMode:      db.WrapNullBool(&resp.Encounter.IsCm),
 		UploadStatus:       string(db.StatusUploaded),
 		UploadStatusReason: string(db.ReasonSuccess),
 	})

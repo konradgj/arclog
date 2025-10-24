@@ -97,15 +97,25 @@ WHERE (
             OR ?5 IS NULL
         )
     )
+    AND (
+        challenge_mode = ?6
+	OR ?6 IS NULL
+    )
+    AND (
+        encounter_success = ?7
+	OR ?7 IS NULL
+    )
 ORDER BY created_at DESC
 `
 
 type ListCbtlogsByFiltersParams struct {
-	UploadStatus sql.NullString
-	RelativePath sql.NullString
-	Date         interface{}
-	FromDate     sql.NullString
-	ToDate       sql.NullString
+	UploadStatus     sql.NullString
+	RelativePath     sql.NullString
+	Date             interface{}
+	FromDate         sql.NullString
+	ToDate           sql.NullString
+	ChallengeMode    sql.NullInt64
+	EncounterSuccess sql.NullInt64
 }
 
 func (q *Queries) ListCbtlogsByFilters(ctx context.Context, arg ListCbtlogsByFiltersParams) ([]Cbtlog, error) {
@@ -115,6 +125,8 @@ func (q *Queries) ListCbtlogsByFilters(ctx context.Context, arg ListCbtlogsByFil
 		arg.Date,
 		arg.FromDate,
 		arg.ToDate,
+		arg.ChallengeMode,
+		arg.EncounterSuccess,
 	)
 	if err != nil {
 		return nil, err

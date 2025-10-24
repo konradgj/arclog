@@ -17,15 +17,17 @@ func (l LogAddCmd) Run(ctx *Context) error {
 }
 
 type LogListCmd struct {
-	Uploadstatus string `short:"s" default:"" enum:",pending,uploading,uploaded,failed,skipped" help:"Filter by upload status."`
-	Relativepath string `short:"p" help:"Filter by relative path."`
-	Date         string `short:"d" help:"Filter by date (YYYY, YYYYMM or YYYYMMDD)."`
-	From         string `help:"Filter from date (YYYY, YYYYMM or YYYYMMDD)."`
-	To           string `help:"Filter to date (YYYY, YYYYMM or YYYYMMDD)."`
+	Uploadstatus     string `short:"s" default:"" enum:",pending,uploading,uploaded,failed,skipped" help:"Filter by upload status."`
+	Relativepath     string `short:"p" help:"Filter by relative path."`
+	Date             string `short:"d" help:"Filter by date (YYYY, YYYYMM or YYYYMMDD)."`
+	From             string `help:"Filter from date (YYYY, YYYYMM or YYYYMMDD)."`
+	To               string `help:"Filter to date (YYYY, YYYYMM or YYYYMMDD)."`
+	EncounterSuccess *bool  `short:"e" help:"Filter by encounter success"`
+	ChallengeMode    *bool  `short:"c" help:"Filter by challenge mode"`
 }
 
 func (l LogListCmd) Run(ctx *Context) error {
-	ctx.RunListCbtlogsByFilter(l.Uploadstatus, l.Relativepath, l.Date, l.From, l.To)
+	ctx.RunListCbtlogsByFilter(l.Uploadstatus, l.Relativepath, l.Date, l.From, l.To, l.ChallengeMode, l.EncounterSuccess)
 	return nil
 }
 
