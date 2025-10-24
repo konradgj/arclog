@@ -77,7 +77,7 @@ func (ctx *Context) NewWatcher(jobs chan<- UploadJob, cancelCtx context.Context)
 					ctx.Logger.Errorw("error adding upload to db", "err", err)
 					continue
 				}
-				ctx.Logger.Debugw("added log to db", cbtlog)
+				ctx.Logger.Debugw("added log to db", "cbtlog", cbtlog)
 
 				ctx.Logger.Infow("added log to db", "file", cbtlog.Filename)
 
