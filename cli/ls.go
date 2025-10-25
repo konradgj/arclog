@@ -12,23 +12,23 @@ type LsCmd struct {
 	ChallengeMode    *bool  `short:"c" help:"Filter by challenge mode"`
 }
 
-func (l LsCmd) Run(ctx *Context) error {
-	ctx.RunListCbtlogsByFilter(l.Uploadstatus, l.Relativepath, l.Date, l.From, l.To, l.ChallengeMode, l.EncounterSuccess)
+func (cmd LsCmd) Run(ctx *Context) error {
+	ctx.RunListCbtlogsByFilter(cmd.Uploadstatus, cmd.Relativepath, cmd.Date, cmd.From, cmd.To, cmd.ChallengeMode, cmd.EncounterSuccess)
 	return nil
 }
 
-func (l LsCmd) Validate() error {
-	if l.Date != "" && (l.From != "" || l.To != "") {
+func (cmd LsCmd) Validate() error {
+	if cmd.Date != "" && (cmd.From != "" || cmd.To != "") {
 		return fmt.Errorf("cannot use -d with --from or --to")
 	}
 
-	if err := valitdateDateFormat(l.Date, "-d"); err != nil {
+	if err := valitdateDateFormat(cmd.Date, "-d"); err != nil {
 		return err
 	}
-	if err := valitdateDateFormat(l.From, "--from"); err != nil {
+	if err := valitdateDateFormat(cmd.From, "--from"); err != nil {
 		return err
 	}
-	if err := valitdateDateFormat(l.To, "--to"); err != nil {
+	if err := valitdateDateFormat(cmd.To, "--to"); err != nil {
 		return err
 	}
 	return nil

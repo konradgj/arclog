@@ -14,12 +14,12 @@ type ConfigSetCmd struct {
 	Usertoken string `short:"t" help:"User token."`
 }
 
-func (c ConfigSetCmd) Run(ctx *Context) error {
-	if c.Logpath == "" && c.Usertoken == "" {
+func (cmd ConfigSetCmd) Run(ctx *Context) error {
+	if cmd.Logpath == "" && cmd.Usertoken == "" {
 		return fmt.Errorf("must provide at least one of --logpath or --usertoken")
 	}
 
-	ctx.Config.SetValues(appDir, c.Logpath, c.Usertoken)
+	ctx.Config.SetValues(appDir, cmd.Logpath, cmd.Usertoken)
 	fmt.Println("Updated config:")
 	settings := ctx.Config.GetSettingsString()
 	fmt.Println(settings)
@@ -29,7 +29,7 @@ func (c ConfigSetCmd) Run(ctx *Context) error {
 type ConfigShowCmd struct {
 }
 
-func (c ConfigShowCmd) Run(ctx *Context) error {
+func (cmd ConfigShowCmd) Run(ctx *Context) error {
 	settings := ctx.Config.GetSettingsString()
 	fmt.Println(settings)
 	return nil

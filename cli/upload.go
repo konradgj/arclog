@@ -21,21 +21,21 @@ func (cmd *UploadCmd) Validate() error {
 	return nil
 }
 
-func (u *UploadCmd) Run(ctx *Context) error {
-	if u.Status != "" {
-		ctx.RunUploadsByStatus(u.Status, u.Anonymous, u.Detailedwvw, ctx.CancelCtx)
+func (cmd *UploadCmd) Run(ctx *Context) error {
+	if cmd.Status != "" {
+		ctx.RunUploadsByStatus(cmd.Status, cmd.Anonymous, cmd.Detailedwvw, ctx.CancelCtx)
 		return nil
 	}
 
-	if len(u.Paths) > 0 {
-		ctx.RunUploadPathLogs(u.Paths, u.Anonymous, u.Detailedwvw)
+	if len(cmd.Paths) > 0 {
+		ctx.RunUploadPathLogs(cmd.Paths, cmd.Anonymous, cmd.Detailedwvw)
 		return nil
 	}
 
-	if u.Watch {
-		ctx.RunWatchUploads(u.Anonymous, u.Detailedwvw, ctx.CancelCtx)
+	if cmd.Watch {
+		ctx.RunWatchUploads(cmd.Anonymous, cmd.Detailedwvw, ctx.CancelCtx)
 	} else {
-		ctx.RunUploadsByStatus(string(db.StatusPending), u.Anonymous, u.Detailedwvw, ctx.CancelCtx)
+		ctx.RunUploadsByStatus(string(db.StatusPending), cmd.Anonymous, cmd.Detailedwvw, ctx.CancelCtx)
 	}
 
 	fmt.Println()
