@@ -35,7 +35,7 @@ func (ctx *Context) addCbtlogToDb(logPath string) (*database.Cbtlog, error) {
 }
 
 func (ctx *Context) updateLogStatus(id int64, status, reason string) {
-	err := ctx.St.Queries.UpdateCtblogUploadStatus(context.Background(), database.UpdateCtblogUploadStatusParams{
+	err := ctx.St.Queries.UpdateCbtlogUploadStatus(context.Background(), database.UpdateCbtlogUploadStatusParams{
 		UploadStatus:       status,
 		UploadStatusReason: reason,
 		ID:                 id,
