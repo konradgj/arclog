@@ -41,6 +41,7 @@ func GetAllFilePaths(path string) ([]string, error) {
 	return filePaths, nil
 }
 
+// File or dir
 func FileExists(path string) (bool, error) {
 	_, err := os.Stat(path)
 	if err == nil {
@@ -49,5 +50,23 @@ func FileExists(path string) (bool, error) {
 	if os.IsNotExist(err) {
 		return false, nil
 	}
-	return false, fmt.Errorf("could not stat file: %w", err)
+	return false, fmt.Errorf("could not stat file %q: %w", path, err)
+}
+
+// File or dir
+func RmFile(path string) error {
+	exists, err := FileExists(path)
+	if err != nil {
+		return err
+	}
+	if !exists {
+		return fmt.Errorf("file does not exist: %s", path)
+	}
+
+	err = os.Remove(path)
+	if err != nil {
+		return fmt.Errorf("could not delete file %q: %w", path, err)
+	}
+
+	return nil
 }
