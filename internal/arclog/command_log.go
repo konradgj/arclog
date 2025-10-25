@@ -6,12 +6,13 @@ import (
 	"text/tabwriter"
 
 	"github.com/konradgj/arclog/internal/db"
+	"github.com/konradgj/arclog/internal/fsutil"
 )
 
 func (ctx *Context) RunAddLogsToDb(paths []string) {
 	var logPaths []string
 	for _, path := range paths {
-		ps, err := GetAllFilePaths(path)
+		ps, err := fsutil.GetAllFilePaths(path)
 		if err != nil {
 			ctx.Logger.Errorw("could not get logs", "err", err)
 			return

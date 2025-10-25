@@ -9,12 +9,13 @@ import (
 	"github.com/konradgj/arclog/internal/database"
 	"github.com/konradgj/arclog/internal/db"
 	"github.com/konradgj/arclog/internal/dpsreport"
+	"github.com/konradgj/arclog/internal/fsutil"
 )
 
 func (ctx *Context) RunUploadPathLogs(paths []string, anonymous, detailedwvw bool) {
 	var logPaths []string
 	for _, path := range paths {
-		ps, err := GetAllFilePaths(path)
+		ps, err := fsutil.GetAllFilePaths(path)
 		if err != nil {
 			ctx.Logger.Errorw("could not get logs", "err", err)
 			return
@@ -102,7 +103,7 @@ func (ctx *Context) RunWatchUploads(anonymous, detailedwvw bool, cancelCtx conte
 func (ctx *Context) UploadLog(cbtlog database.Cbtlog, anonymous, detailedwvw bool) {
 	filePath := ctx.Config.GetLogFilePath(cbtlog)
 
-	exists, err := FileExists(filePath)
+	exists, err := fsutil.FileExists(filePath)
 	if err != nil {
 		ctx.Logger.Errorw("could not stat file", "file", filePath, "err", err)
 		return
