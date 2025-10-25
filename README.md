@@ -39,7 +39,7 @@ Make sure your $GOBIN or $GOPATH/bin is on your PATH if you used `go install`.
 
 ## Usage
 
-The CLI binary exposes a few top-level commands: `config`, `log`, `watch`, and `upload`.
+The CLI binary exposes a few top-level commands: `config`, `add`, `ls`, `upload`, and `watch`.
 
 General form:
 
@@ -59,10 +59,12 @@ Global flags:
   - `-p` set log path (default is arcdps default)
   - `-t` set dps.report usertoken
 
-#### log
-- `arclog log add /path/to/file.zevtc /path/to/dir` — add files/dirs to the DB (supports multiple paths)
-- `arclog log list` 
-- Flags available (list):
+#### add
+- `arclog add /path/to/file.zevtc /path/to/dir` — add files/dirs to the DB (supports multiple paths)
+
+#### ls
+- `arclog ls` 
+- Flags available:
   - `-s` list logs filtered by upload status (pending, uploading, uploaded, failed, skipped)
   - `-p` list logs filtered by relative path
     - relative path supports wildcards: eg. deimos% or "Deimos (17154)"
@@ -71,9 +73,6 @@ Global flags:
   - `--to` list logs to (<=) date
   - `-c or --challenge-mode=false` list logs by cm
   - `-e or --encounter-success=false` list logs by success
-
-#### watch
-- `arclog watch` — watch the configured log directory and add them to db
 
 #### upload
 - `arclog upload` — upload all pending logs
@@ -87,13 +86,17 @@ Global flags:
   - `-a` to upload anonymously
   - `-d` to enable detailed WvW logs
 
+
+#### watch
+- `arclog watch` — watch the configured log directory and add them to db
+
 For help on any command run:
 
 ```bash
 arclog <command> -h
 ```
 
-## Roadmap (short)
+## Roadmap
 
 - Add exclude rules (e.g. skip WvW logs)
 - (maybe) Add parsing for WvW live info
