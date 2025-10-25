@@ -41,6 +41,31 @@ func (q *Queries) CreateCbtlog(ctx context.Context, arg CreateCbtlogParams) (Cbt
 	return i, err
 }
 
+const deleteCbtlogByFilename = `-- name: DeleteCbtlogByFilename :one
+DELETE FROM cbtlogs
+WHERE filename = ?
+RETURNING id, filename, relative_path, url, upload_status, upload_status_reason, active, created_at, updated_at, encounter_success, challenge_mode
+`
+
+func (q *Queries) DeleteCbtlogByFilename(ctx context.Context, filename string) (Cbtlog, error) {
+	row := q.db.QueryRowContext(ctx, deleteCbtlogByFilename, filename)
+	var i Cbtlog
+	err := row.Scan(
+		&i.ID,
+		&i.Filename,
+		&i.RelativePath,
+		&i.Url,
+		&i.UploadStatus,
+		&i.UploadStatusReason,
+		&i.Active,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.EncounterSuccess,
+		&i.ChallengeMode,
+	)
+	return i, err
+}
+
 const getCbtlogByFileName = `-- name: GetCbtlogByFileName :one
 SELECT id, filename, relative_path, url, upload_status, upload_status_reason, active, created_at, updated_at, encounter_success, challenge_mode FROM cbtlogs WHERE filename = ?
 `
@@ -238,7 +263,7 @@ func (q *Queries) UpdateCbtlogUploadResult(ctx context.Context, arg UpdateCbtlog
 	return err
 }
 
-const updateCtblogUploadStatus = `-- name: UpdateCtblogUploadStatus :exec
+const updateCbtlogUploadStatus = `-- name: UpdateCbtlogUploadStatus :exec
 UPDATE cbtlogs
 SET
     upload_status = ?,
@@ -248,13 +273,13 @@ WHERE
     id = ?
 `
 
-type UpdateCtblogUploadStatusParams struct {
+type UpdateCbtlogUploadStatusParams struct {
 	UploadStatus       string
 	UploadStatusReason string
 	ID                 int64
 }
 
-func (q *Queries) UpdateCtblogUploadStatus(ctx context.Context, arg UpdateCtblogUploadStatusParams) error {
-	_, err := q.db.ExecContext(ctx, updateCtblogUploadStatus, arg.UploadStatus, arg.UploadStatusReason, arg.ID)
+func (q *Queries) UpdateCbtlogUploadStatus(ctx context.Context, arg UpdateCbtlogUploadStatusParams) error {
+	_, err := q.db.ExecContext(ctx, updateCbtlogUploadStatus, arg.UploadStatus, arg.UploadStatusReason, arg.ID)
 	return err
 }

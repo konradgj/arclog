@@ -39,7 +39,7 @@ Make sure your $GOBIN or $GOPATH/bin is on your PATH if you used `go install`.
 
 ## Usage
 
-The CLI binary exposes a few top-level commands: `config`, `add`, `ls`, `upload`, and `watch`.
+The CLI binary exposes a few top-level commands: `config`, `add`, `ls`, `rm`, `upload`, and `watch`.
 
 General form:
 
@@ -73,6 +73,11 @@ Global flags:
   - `--to` list logs to (<=) date
   - `-c or --challenge-mode=false` list logs by cm
   - `-e or --encounter-success=false` list logs by success
+
+#### rm
+- `arclog rm [filename]` remove log from db
+- Flags available:
+  - `-d` delete log from filesystem
 
 #### upload
 - `arclog upload` — upload all pending logs

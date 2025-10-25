@@ -3,7 +3,12 @@ INSERT INTO
     cbtlogs (filename, relative_path, url)
 VALUES (?, ?, ?) RETURNING *;
 
--- name: UpdateCtblogUploadStatus :exec
+-- name: DeleteCbtlogByFilename :one
+DELETE FROM cbtlogs
+WHERE filename = ?
+RETURNING *;
+
+-- name: UpdateCbtlogUploadStatus :exec
 UPDATE cbtlogs
 SET
     upload_status = ?,

@@ -26,6 +26,7 @@ var cli struct {
 	Add    AddCmd    `cmd:"" help:"Add logs to db."`
 	Config ConfigCmd `cmd:"" help:"Manage config."`
 	Ls     LsCmd     `cmd:"" help:"List logs added to db."`
+	Rm     RmCmd     `cmd:"" help:"Remove log from db"`
 	Upload UploadCmd `cmd:"" help:"Upload pending files to dps.report."`
 	Watch  WatchCmd  `cmd:"" help:"Watch log directory for new logs and add to db."`
 }
