@@ -51,11 +51,11 @@ func PrintNullStr(s sql.NullString) string {
 	return s.String
 }
 
-func PrintNullBool(s sql.NullInt64) *int64 {
+func PrintNullBool(s sql.NullInt64) string {
 	if !s.Valid {
-		return nil
+		return ""
 	}
-	return &s.Int64
+	return fmt.Sprintf("%d", s.Int64)
 }
 
 func WrapNullBool(b *bool) sql.NullInt64 {

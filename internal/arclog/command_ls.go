@@ -28,7 +28,7 @@ func (ctx *Context) RunListCbtlogsByFilter(uploadStatus, relativePath, date, fro
 		url := db.PrintNullStr(row.Url)
 		fmt.Fprintf(
 			w,
-			"%s\t%s\t%s\t%d\t%d\t%s\t%s\n",
+			"%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
 			row.Filename,
 			relPath,
 			url,
