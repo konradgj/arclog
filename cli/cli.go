@@ -23,10 +23,11 @@ type Context struct {
 var cli struct {
 	Debug bool `help:"Enable debug mode."`
 
+	Add    AddCmd    `cmd:"" help:"Add logs to db."`
 	Config ConfigCmd `cmd:"" help:"Manage config."`
-	Log    LogCmd    `cmd:"" help:"Manage logs."`
-	Watch  WatchCmd  `cmd:"" help:"Watch log directory for new logs and add to db."`
+	Ls     LsCmd     `cmd:"" help:"List logs added to db."`
 	Upload UploadCmd `cmd:"" help:"Upload pending files to dps.report."`
+	Watch  WatchCmd  `cmd:"" help:"Watch log directory for new logs and add to db."`
 }
 
 func Execute() {
